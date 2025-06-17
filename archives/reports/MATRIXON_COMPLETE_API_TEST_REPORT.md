@@ -7,7 +7,7 @@ Description: Ultra High Performance Matrix NextServer (Synapse Alternative)
 
 ## ✅ DISCOVERY STATUS: COMPLETE REAL IMPLEMENTATION FOUND!
 
-After extensive exploration, we successfully discovered and tested a **COMPLETE, FULLY FUNCTIONAL** Matrix server implementation in the `simple_matrixon/` directory. This is **NOT** placeholder code - this is a real, working Matrix homeserver!
+After extensive exploration, we successfully discovered and tested a **COMPLETE, FULLY FUNCTIONAL** Matrix server implementation in the `simple_matrixon/` directory. This is **NOT** placeholder code - this is a real, working Matrix NextServer!
 
 ## 🚀 Server Status
 - **Status**: ✅ OPERATIONAL  
@@ -131,7 +131,7 @@ curl -X POST http://localhost:6167/_matrix/client/r0/login \
   "device_id": "LOGIN_DEVICE_1750149625",
   "user_id": "@testuser:localhost",
   "well_known": {
-    "m.homeserver": {
+    "m.NextServer": {
       "base_url": "http://localhost:6167"
     }
   }
@@ -251,7 +251,7 @@ curl -s "http://localhost:6167/_matrix/client/r0/sync" \
 - Room membership tracking
 - Server capabilities advertising
 - Health monitoring
-- Well-known homeserver discovery
+- Well-known NextServer discovery
 
 ### 🏗️ Architecture Quality:
 - **Error Handling**: Proper HTTP status codes
@@ -296,7 +296,7 @@ curl -s "http://localhost:6167/_matrix/client/r0/sync" \
 
 **MISSION ACCOMPLISHED!** 
 
-We have successfully discovered and verified a **COMPLETE, FULLY FUNCTIONAL Matrix homeserver implementation** in the Matrixon project. This is not placeholder code - this is a real working Matrix server that:
+We have successfully discovered and verified a **COMPLETE, FULLY FUNCTIONAL Matrix NextServer implementation** in the Matrixon project. This is not placeholder code - this is a real working Matrix server that:
 
 1. **Implements the Matrix Client-Server API** correctly
 2. **Handles user registration & authentication** with proper token generation

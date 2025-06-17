@@ -11,7 +11,7 @@
 [![AI Ready](https://img.shields.io/badge/AI-Ready-purple?style=flat-square)](#ai-features)
 [![Web3](https://img.shields.io/badge/Web3-Enabled-gold?style=flat-square)](#web3-integration)
 
-**A high-performance, AI-powered, Web3-enabled Matrix homeserver built in Rust**
+**A high-performance, AI-powered, Web3-enabled Matrix NextServer built in Rust**
 
 [🎯 Features](#features) • [📖 Documentation](#documentation) • [🚀 Quick Start](#quick-start) • [🏗️ Architecture](#architecture) • [🤝 Contributing](#contributing)
 
@@ -21,15 +21,15 @@
 
 ## 📋 Overview
 
-**Matrixon** is a next-generation Matrix homeserver designed for the future of decentralized communication. Built from the ground up in Rust, it combines the power of the Matrix protocol with cutting-edge AI capabilities and Web3 blockchain technology.
+**Matrixon** is a next-generation Matrix NextServer designed for the future of decentralized communication. Built from the ground up in Rust, it combines the power of the Matrix protocol with cutting-edge AI capabilities and Web3 blockchain technology.
 
 ### 🎯 Key Goals
 
-- **🚄 Ultra High Performance**: 200k+ concurrent connections, <50ms latency
-- **🤖 AI-Powered**: Intelligent message processing, translation, and automation
-- **🌐 Web3 Integration**: Blockchain-based identity and decentralized storage
-- **🔗 Universal Connectivity**: Seamless integration with Telegram, Discord, and IoT platforms
-- **🛡️ Enterprise-Ready**: Production-grade security, monitoring, and scalability
+-   **🚄 Ultra High Performance**: 200k+ concurrent connections, <50ms latency
+-   **🤖 AI-Powered**: Intelligent message processing, translation, and automation
+-   **🌐 Web3 Integration**: Blockchain-based identity and decentralized storage
+-   **🔗 Universal Connectivity**: Seamless integration with Telegram, Discord, and IoT platforms
+-   **🛡️ Enterprise-Ready**: Production-grade security, monitoring, and scalability
 
 ---
 
@@ -37,53 +37,53 @@
 
 ### 🏆 Core Matrix Features
 
-- ✅ **Full Matrix Specification Compliance** - Complete Client-Server and Server-Server API
-- ✅ **End-to-End Encryption (E2EE)** - Secure messaging with advanced cryptography
-- ✅ **Federation Support** - Connect with any Matrix homeserver worldwide
-- ✅ **Real-time Sync** - Instant message delivery via WebSocket and Server-Sent Events
-- ✅ **Rich Media Support** - File uploads, thumbnails, and media repository
-- ✅ **Room Management** - Public/private rooms, spaces, and advanced moderation
-- ✅ **Push Notifications** - Mobile and desktop notification delivery
+-   ✅ **Full Matrix Specification Compliance** - Complete Client-Server and Server-Server API
+-   ✅ **End-to-End Encryption (E2EE)** - Secure messaging with advanced cryptography
+-   ✅ **Federation Support** - Connect with any Matrix NextServer worldwide
+-   ✅ **Real-time Sync** - Instant message delivery via WebSocket and Server-Sent Events
+-   ✅ **Rich Media Support** - File uploads, thumbnails, and media repository
+-   ✅ **Room Management** - Public/private rooms, spaces, and advanced moderation
+-   ✅ **Push Notifications** - Mobile and desktop notification delivery
 
 ### 🚀 Performance & Scalability
 
-- ⚡ **Ultra-High Performance** - 200,000+ concurrent connections per instance
-- 🔥 **Sub-50ms Latency** - Optimized for real-time communication
-- 📈 **Horizontal Scaling** - Seamless cluster deployment
-- 💾 **Memory Efficiency** - Zero-copy operations and optimized data structures
-- 🔄 **Database Flexibility** - PostgreSQL, SQLite, and RocksDB support
+-   ⚡ **Ultra-High Performance** - 200,000+ concurrent connections per instance
+-   🔥 **Sub-50ms Latency** - Optimized for real-time communication
+-   📈 **Horizontal Scaling** - Seamless cluster deployment
+-   💾 **Memory Efficiency** - Zero-copy operations and optimized data structures
+-   🔄 **Database Flexibility** - PostgreSQL, SQLite, and RocksDB support
 
 ### 🤖 AI Features
 
-- 🧠 **Intelligent Message Processing** - AI-powered content analysis and filtering
-- 🌍 **Real-time Translation** - Break language barriers in global conversations
-- 🤖 **Smart Bot Integration** - Advanced chatbot framework with NLP
-- 📊 **Analytics & Insights** - AI-driven usage patterns and recommendations
-- 🛡️ **Automated Moderation** - AI-assisted spam and abuse detection
+-   🧠 **Intelligent Message Processing** - AI-powered content analysis and filtering
+-   🌍 **Real-time Translation** - Break language barriers in global conversations
+-   🤖 **Smart Bot Integration** - Advanced chatbot framework with NLP
+-   📊 **Analytics & Insights** - AI-driven usage patterns and recommendations
+-   🛡️ **Automated Moderation** - AI-assisted spam and abuse detection
 
 ### 🌐 Web3 Integration
 
-- ⛓️ **Blockchain Identity** - Decentralized user authentication
-- 💎 **NFT Support** - Native NFT sharing and verification
-- 🔐 **Crypto Wallets** - Integrated cryptocurrency wallet functionality
-- 📱 **IPFS Storage** - Distributed file storage for media and backups
-- 🏛️ **DAO Governance** - Decentralized server governance mechanisms
+-   ⛓️ **Blockchain Identity** - Decentralized user authentication
+-   💎 **NFT Support** - Native NFT sharing and verification
+-   🔐 **Crypto Wallets** - Integrated cryptocurrency wallet functionality
+-   📱 **IPFS Storage** - Distributed file storage for media and backups
+-   🏛️ **DAO Governance** - Decentralized server governance mechanisms
 
 ### 🔗 Platform Bridges
 
-- 📱 **Telegram Bridge** - Seamless Telegram integration
-- 🎮 **Discord Bridge** - Connect Discord servers and channels
-- 🌐 **IoT Connectivity** - Internet of Things device communication
-- 📧 **Email Bridge** - Traditional email system integration
-- 🔌 **Custom Connectors** - Extensible bridge framework
+-   📱 **Telegram Bridge** - Seamless Telegram integration
+-   🎮 **Discord Bridge** - Connect Discord servers and channels
+-   🌐 **IoT Connectivity** - Internet of Things device communication
+-   📧 **Email Bridge** - Traditional email system integration
+-   🔌 **Custom Connectors** - Extensible bridge framework
 
 ### 🛠️ Developer Features
 
-- 🦀 **Rust-First** - Memory safety and zero-cost abstractions
-- 🏗️ **Modular Architecture** - Microservices-based design
-- 📊 **Comprehensive Monitoring** - Prometheus metrics and distributed tracing
-- 🧪 **Testing Suite** - 100% test coverage goal with integration tests
-- 📚 **Rich API** - RESTful and GraphQL APIs for custom integrations
+-   🦀 **Rust-First** - Memory safety and zero-cost abstractions
+-   🏗️ **Modular Architecture** - Microservices-based design
+-   📊 **Comprehensive Monitoring** - Prometheus metrics and distributed tracing
+-   🧪 **Testing Suite** - 100% test coverage goal with integration tests
+-   📚 **Rich API** - RESTful and GraphQL APIs for custom integrations
 
 ---
 
@@ -121,19 +121,19 @@ Matrixon follows a modern microservices architecture designed for scalability an
 
 ### Core Components
 
-- **🎯 matrixon-core** - Central server runtime and coordination
-- **🌐 matrixon-api** - Matrix Client-Server and Server-Server APIs
-- **💾 matrixon-db** - Database abstraction and management
-- **🔐 matrixon-e2ee** - End-to-end encryption implementation
-- **👥 matrixon-users** - User management and authentication
-- **🏠 matrixon-rooms** - Room management and state resolution
-- **📁 matrixon-media** - Media upload, storage, and thumbnails
-- **📤 matrixon-push** - Push notification delivery
-- **🤖 matrixon-ai** - AI processing and machine learning
-- **⛓️ matrixon-web3** - Blockchain and Web3 integrations
-- **🌐 matrixon-ipfs** - IPFS distributed storage
-- **🤖 matrixon-bot** - Bot framework and automation
-- **📊 matrixon-monitor** - Metrics, logging, and monitoring
+-   **🎯 matrixon-core** - Central server runtime and coordination
+-   **🌐 matrixon-api** - Matrix Client-Server and Server-Server APIs
+-   **💾 matrixon-db** - Database abstraction and management
+-   **🔐 matrixon-e2ee** - End-to-end encryption implementation
+-   **👥 matrixon-users** - User management and authentication
+-   **🏠 matrixon-rooms** - Room management and state resolution
+-   **📁 matrixon-media** - Media upload, storage, and thumbnails
+-   **📤 matrixon-push** - Push notification delivery
+-   **🤖 matrixon-ai** - AI processing and machine learning
+-   **⛓️ matrixon-web3** - Blockchain and Web3 integrations
+-   **🌐 matrixon-ipfs** - IPFS distributed storage
+-   **🤖 matrixon-bot** - Bot framework and automation
+-   **📊 matrixon-monitor** - Metrics, logging, and monitoring
 
 ---
 
@@ -141,10 +141,10 @@ Matrixon follows a modern microservices architecture designed for scalability an
 
 ### Prerequisites
 
-- **Rust 1.85.0+** - [Install Rust](https://rustup.rs/)
-- **PostgreSQL 14+** - [Download PostgreSQL](https://www.postgresql.org/download/)
-- **Redis 6+** - [Install Redis](https://redis.io/download)
-- **Docker & Docker Compose** - [Get Docker](https://docs.docker.com/get-docker/)
+-   **Rust 1.85.0+** - [Install Rust](https://rustup.rs/)
+-   **PostgreSQL 14+** - [Download PostgreSQL](https://www.postgresql.org/download/)
+-   **Redis 6+** - [Install Redis](https://redis.io/download)
+-   **Docker & Docker Compose** - [Get Docker](https://docs.docker.com/get-docker/)
 
 ### 🐳 Docker Quick Start (Recommended)
 
@@ -186,11 +186,11 @@ cargo build --release
 
 Download and configure a Matrix client:
 
-- **Element** - [element.io](https://element.io/)
-- **Nextgram** - [Our custom client] (Coming Soon)
-- **FluffyChat** - [fluffychat.im](https://fluffychat.im/)
+-   **Element** - [element.io](https://element.io/)
+-   **Nextgram** - [Our custom client] (Coming Soon)
+-   **FluffyChat** - [fluffychat.im](https://fluffychat.im/)
 
-Set your homeserver URL to: `https://your-domain.com`
+Set your NextServer URL to: `https://your-domain.com`
 
 ---
 
@@ -198,26 +198,26 @@ Set your homeserver URL to: `https://your-domain.com`
 
 ### 📚 User Guides
 
-- [🚀 Installation Guide](docs/INSTALLATION.md)
-- [⚙️ Configuration Reference](docs/CONFIGURATION.md)
-- [🔐 Security Best Practices](docs/SECURITY.md)
-- [📊 Monitoring & Observability](docs/MONITORING.md)
-- [🐳 Docker Deployment](docs/DOCKER.md)
+-   [🚀 Installation Guide](docs/INSTALLATION.md)
+-   [⚙️ Configuration Reference](docs/CONFIGURATION.md)
+-   [🔐 Security Best Practices](docs/SECURITY.md)
+-   [📊 Monitoring & Observability](docs/MONITORING.md)
+-   [🐳 Docker Deployment](docs/DOCKER.md)
 
 ### 🏗️ Developer Resources
 
-- [🏛️ Architecture Overview](ARCHITECTURE_PRINCIPLES.md)
-- [🔌 API Documentation](docs/API.md)
-- [🧪 Testing Guide](docs/TESTING.md)
-- [🤝 Contributing Guidelines](CONTRIBUTING.md)
-- [📋 Code Style Guide](docs/CODE_STYLE.md)
+-   [🏛️ Architecture Overview](ARCHITECTURE_PRINCIPLES.md)
+-   [🔌 API Documentation](docs/API.md)
+-   [🧪 Testing Guide](docs/TESTING.md)
+-   [🤝 Contributing Guidelines](CONTRIBUTING.md)
+-   [📋 Code Style Guide](docs/CODE_STYLE.md)
 
 ### 🔗 Integration Guides
 
-- [🤖 AI Features Setup](docs/AI_INTEGRATION.md)
-- [⛓️ Web3 Configuration](docs/WEB3_SETUP.md)
-- [📱 Bridge Configuration](docs/BRIDGES.md)
-- [🌐 Federation Setup](docs/FEDERATION.md)
+-   [🤖 AI Features Setup](docs/AI_INTEGRATION.md)
+-   [⛓️ Web3 Configuration](docs/WEB3_SETUP.md)
+-   [📱 Bridge Configuration](docs/BRIDGES.md)
+-   [🌐 Federation Setup](docs/FEDERATION.md)
 
 ---
 
@@ -225,25 +225,27 @@ Set your homeserver URL to: `https://your-domain.com`
 
 ### 🎯 Current Phase: Alpha (v0.11.0)
 
-- ✅ Core Matrix protocol implementation
-- ✅ Basic AI integration framework
-- ✅ Web3 foundation components
-- 🔄 Advanced E2EE features
-- 🔄 Production optimization
+-   ✅ Core Matrix protocol implementation
+-   ✅ Basic AI integration framework
+-   ✅ Web3 foundation components
+-   🔄 Advanced E2EE features
+-   🔄 Production optimization
 
 ### 📋 Upcoming Features
 
 #### 🚀 Beta Release (v1.0.0)
-- 🎮 Complete Discord bridge
-- 📱 Enhanced Telegram integration
-- 🌍 Advanced translation features
-- 📊 Real-time analytics dashboard
+
+-   🎮 Complete Discord bridge
+-   📱 Enhanced Telegram integration
+-   🌍 Advanced translation features
+-   📊 Real-time analytics dashboard
 
 #### 🌟 Stable Release (v2.0.0)
-- 🏛️ DAO governance system
-- 💎 NFT marketplace integration
-- 🤖 Advanced AI assistant (Nextgram companion)
-- 🌐 Full IoT device ecosystem
+
+-   🏛️ DAO governance system
+-   💎 NFT marketplace integration
+-   🤖 Advanced AI assistant (Nextgram companion)
+-   🌐 Full IoT device ecosystem
 
 ---
 
@@ -253,11 +255,11 @@ We welcome contributions from the community! Here's how you can help:
 
 ### 🎯 Ways to Contribute
 
-- 🐛 **Bug Reports** - [Report issues](https://github.com/arksong2018/Matrixon/issues)
-- 💡 **Feature Requests** - [Suggest improvements](https://github.com/arksong2018/Matrixon/discussions)
-- 📝 **Code Contributions** - [Submit pull requests](https://github.com/arksong2018/Matrixon/pulls)
-- 📚 **Documentation** - Help improve our docs
-- 🧪 **Testing** - Test new features and report feedback
+-   🐛 **Bug Reports** - [Report issues](https://github.com/arksong2018/Matrixon/issues)
+-   💡 **Feature Requests** - [Suggest improvements](https://github.com/arksong2018/Matrixon/discussions)
+-   📝 **Code Contributions** - [Submit pull requests](https://github.com/arksong2018/Matrixon/pulls)
+-   📚 **Documentation** - Help improve our docs
+-   🧪 **Testing** - Test new features and report feedback
 
 ### 🔧 Development Setup
 
@@ -278,10 +280,10 @@ cargo watch -x run
 
 ### 📋 Code Standards
 
-- Follow our [Code Style Guide](docs/CODE_STYLE.md)
-- Write comprehensive tests for new features
-- Update documentation for any API changes
-- Run `cargo clippy` and `cargo fmt` before submitting
+-   Follow our [Code Style Guide](docs/CODE_STYLE.md)
+-   Write comprehensive tests for new features
+-   Update documentation for any API changes
+-   Run `cargo clippy` and `cargo fmt` before submitting
 
 ---
 
@@ -291,25 +293,25 @@ Matrixon stands on the shoulders of giants. We extend our heartfelt gratitude to
 
 ### 🌟 Core Inspirations
 
-- **[Matrix.org](https://matrix.org/)** - The foundation of decentralized communication
-- **[Element (Synapse)](https://github.com/element-hq/synapse)** - The reference Matrix homeserver implementation
-- **[Ruma](https://github.com/ruma/ruma)** - Rust Matrix library ecosystem
-- **[Construct](https://github.com/matrix-construct/construct)** - High-performance C++ Matrix server
+-   **[Matrix.org](https://matrix.org/)** - The foundation of decentralized communication
+-   **[Element (Synapse)](https://github.com/element-hq/synapse)** - The reference Matrix NextServer implementation
+-   **[Ruma](https://github.com/ruma/ruma)** - Rust Matrix library ecosystem
+-   **[Construct](https://github.com/matrix-construct/construct)** - High-performance C++ Matrix server
 
 ### 🛠️ Technology Stack
 
-- **[Rust Language](https://rust-lang.org/)** - Memory safety and performance
-- **[Tokio](https://tokio.rs/)** - Asynchronous runtime
-- **[Axum](https://github.com/tokio-rs/axum)** - Modern web framework
-- **[SQLx](https://github.com/launchbadge/sqlx)** - Async SQL toolkit
-- **[Ruma](https://github.com/ruma/ruma)** - Matrix protocol implementation
+-   **[Rust Language](https://rust-lang.org/)** - Memory safety and performance
+-   **[Tokio](https://tokio.rs/)** - Asynchronous runtime
+-   **[Axum](https://github.com/tokio-rs/axum)** - Modern web framework
+-   **[SQLx](https://github.com/launchbadge/sqlx)** - Async SQL toolkit
+-   **[Ruma](https://github.com/ruma/ruma)** - Matrix protocol implementation
 
 ### 🎉 Special Thanks
 
-- The **Matrix Foundation** for creating an open communication protocol
-- The **Rust Community** for building amazing tools and libraries
-- **Contributors** who have helped shape this project
-- **Early Adopters** testing and providing feedback
+-   The **Matrix Foundation** for creating an open communication protocol
+-   The **Rust Community** for building amazing tools and libraries
+-   **Contributors** who have helped shape this project
+-   **Early Adopters** testing and providing feedback
 
 ---
 
@@ -317,8 +319,8 @@ Matrixon stands on the shoulders of giants. We extend our heartfelt gratitude to
 
 This project is dual-licensed under:
 
-- **Apache License 2.0** ([LICENSE-APACHE](LICENSE-APACHE))
-- **MIT License** ([LICENSE-MIT](LICENSE-MIT))
+-   **Apache License 2.0** ([LICENSE-APACHE](LICENSE-APACHE))
+-   **MIT License** ([LICENSE-MIT](LICENSE-MIT))
 
 You may choose either license for your use case.
 
@@ -328,16 +330,16 @@ You may choose either license for your use case.
 
 ### 👤 Project Team
 
-- **arkSong** - Project Founder & Lead Developer
-  - 📧 Email: [arksong2018@gmail.com](mailto:arksong2018@gmail.com)
-  - 🐙 GitHub: [@arksong2018](https://github.com/arksong2018)
+-   **arkSong** - Project Founder & Lead Developer
+    -   📧 Email: [arksong2018@gmail.com](mailto:arksong2018@gmail.com)
+    -   🐙 GitHub: [@arksong2018](https://github.com/arksong2018)
 
 ### 💬 Community
 
-- 🗨️ **Matrix Room**: [#matrixon:your-server.com](https://matrix.to/#/#matrixon:your-server.com)
-- 💭 **Discussions**: [GitHub Discussions](https://github.com/arksong2018/Matrixon/discussions)
-- 🐛 **Issues**: [GitHub Issues](https://github.com/arksong2018/Matrixon/issues)
-- 📢 **Updates**: Follow our development blog
+-   🗨️ **Matrix Room**: [#matrixon:your-server.com](https://matrix.to/#/#matrixon:your-server.com)
+-   💭 **Discussions**: [GitHub Discussions](https://github.com/arksong2018/Matrixon/discussions)
+-   🐛 **Issues**: [GitHub Issues](https://github.com/arksong2018/Matrixon/issues)
+-   📢 **Updates**: Follow our development blog
 
 ### 🆘 Getting Help
 

@@ -368,7 +368,7 @@ async fn login_user(Json(request): Json<LoginRequest>) -> Result<Json<LoginRespo
         device_id,
         home_server: "localhost".to_string(),
         well_known: Some(json!({
-            "m.homeserver": {
+            "m.NextServer": {
                 "base_url": "http://localhost:6167"
             }
         })),

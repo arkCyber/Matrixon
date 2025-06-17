@@ -155,7 +155,7 @@ async fn login(State(state): State<AppState>, Json(payload): Json<Value>) -> imp
         "access_token": access_token,
         "device_id": device_id,
         "well_known": {
-            "m.homeserver": {
+            "m.NextServer": {
                 "base_url": "http://localhost:6167"
             }
         }

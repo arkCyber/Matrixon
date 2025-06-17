@@ -6,7 +6,7 @@
 ## 🤔 General Questions
 
 ### What is Matrixon?
-Matrixon is a high-performance Matrix homeserver implementation written in Rust, specifically designed for AI and Web3 blockchain ecosystems. It's built as a next-generation alternative to Synapse with 20x better performance.
+Matrixon is a high-performance Matrix NextServer implementation written in Rust, specifically designed for AI and Web3 blockchain ecosystems. It's built as a next-generation alternative to Synapse with 20x better performance.
 
 ### How is Matrixon different from Synapse?
 - **Performance**: 200k+ connections vs Synapse's ~10k
@@ -68,7 +68,7 @@ Yes, Matrixon supports existing SSL certificates and also provides automatic Let
 - Decentralized identity (DID) support
 
 ### Do I need blockchain knowledge to use Matrixon?
-No! AI and Web3 features are optional. You can run Matrixon as a standard Matrix homeserver and enable advanced features as needed.
+No! AI and Web3 features are optional. You can run Matrixon as a standard Matrix NextServer and enable advanced features as needed.
 
 ## 🔒 Security & Privacy
 
@@ -110,7 +110,7 @@ Yes! Matrixon implements the full Matrix specification and federates seamlessly 
 - Synapse
 - Dendrite
 - Conduit
-- Other Matrix homeservers
+- Other Matrix NextServers
 
 ### What Matrix features are supported?
 - ✅ Client-Server API (complete)

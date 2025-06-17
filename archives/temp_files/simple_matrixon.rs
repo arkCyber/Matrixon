@@ -148,7 +148,7 @@ async fn login(Json(payload): Json<Value>) -> impl IntoResponse {
         "access_token": format!("syt_login_token_{}", timestamp),
         "device_id": format!("LOGIN_DEVICE_{}", timestamp),
         "well_known": {
-            "m.homeserver": {
+            "m.NextServer": {
                 "base_url": "http://localhost:6167"
             }
         }

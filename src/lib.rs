@@ -488,7 +488,7 @@ pub mod api {
                 "access_token": format!("syt_matrixon_login_{}", timestamp),
                 "device_id": format!("MATRIXON_LOGIN_DEVICE_{}", timestamp),
                 "well_known": {
-                    "m.homeserver": {
+                    "m.NextServer": {
                         "base_url": "http://localhost:6167"
                     },
                     "m.identity_server": {

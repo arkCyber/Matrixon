@@ -110,13 +110,13 @@ impl Service {
         BotConfig::create_default_config(&config_path)?;
         let config = BotConfig::from_file(config_path)?;
         
-        let homeserver_url = format!("https://{}", config.identity.username.split('@').nth(1)
+        let NextServer_url = format!("https://{}", config.identity.username.split('@').nth(1)
             .ok_or_else(|| MatrixonError::Config("Invalid username format".to_string()))?);
             
-        let homeserver_url = Url::parse(&homeserver_url)
-            .map_err(|e| MatrixonError::Config(format!("Invalid homeserver URL: {}", e)))?;
+        let NextServer_url = Url::parse(&NextServer_url)
+            .map_err(|e| MatrixonError::Config(format!("Invalid NextServer URL: {}", e)))?;
             
-        let client = Client::new(homeserver_url)
+        let client = Client::new(NextServer_url)
             .await
             .map_err(|e| MatrixonError::Config(format!("Failed to create client: {}", e)))?;
 
@@ -286,16 +286,16 @@ impl Service {
     pub async fn new(config: BotConfig) -> Result<Self> {
         let domain = config.identity.username.split('@').nth(1)
             .ok_or_else(|| MatrixonError::Config("Invalid username format".to_string()))?;
-        let homeserver_url = if domain == "localhost" {
+        let NextServer_url = if domain == "localhost" {
             "https://localhost:8448".to_string()
         } else if domain.contains(':') {
             format!("https://{}", domain)
         } else {
             format!("https://{}:8448", domain)
         };
-        let homeserver_url = url::Url::parse(&homeserver_url)
-            .map_err(|e| MatrixonError::Config(format!("Invalid homeserver URL: {}", e)))?;
-        let client = matrix_sdk::Client::new(homeserver_url)
+        let NextServer_url = url::Url::parse(&NextServer_url)
+            .map_err(|e| MatrixonError::Config(format!("Invalid NextServer URL: {}", e)))?;
+        let client = matrix_sdk::Client::new(NextServer_url)
             .await
             .map_err(|e| MatrixonError::Config(format!("Failed to create client: {}", e)))?;
         let state = Arc::new(RwLock::new(BotState {
