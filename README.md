@@ -166,7 +166,7 @@ Your Matrixon server will be available at `https://localhost:8008`
 
 ```bash
 # Clone and build
-git clone https://github.com/arksong2018/Matrixon.git
+git clone https://github.com/arkCyber/Matrixon.git
 cd Matrixon
 
 # Install dependencies
@@ -263,7 +263,7 @@ We welcome contributions from the community! Here's how you can help:
 
 ```bash
 # Fork and clone your fork
-git clone https://github.com/YOUR_USERNAME/Matrixon.git
+git clone https://github.com/arkCyber/Matrixon.git
 cd Matrixon
 
 # Install development dependencies
