@@ -1,0 +1,45 @@
+[package]
+name = "matrixon-db"
+version = "0.1.0"
+edition = "2021"
+authors = ["arkSong <arksong2018@gmail.com>"]
+description = "Matrixon Database Abstraction Layer"
+license = "MIT"
+repository = "https://github.com/arksong/matrixon"
+documentation = "https://docs.rs/matrixon-db"
+
+[dependencies]
+matrixon-core = { workspace = true }
+matrixon-common = { workspace = true }
+sqlx = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+chrono = { workspace = true }
+uuid = { workspace = true }
+tracing = { workspace = true }
+thiserror = { workspace = true }
+async-trait = { workspace = true }
+futures = { workspace = true }
+tokio = { workspace = true }
+deadpool-postgres = { workspace = true, optional = true }
+metrics = "0.21"
+metrics-exporter-prometheus = "0.12"
+
+[dev-dependencies]
+criterion = "0.5"
+tokio-test = "0.4"
+test-case = "3.3"
+mockall = "0.12"
+proptest = "1.4"
+serial_test = "2.0"
+
+[features]
+default = ["postgres"]
+postgres = ["deadpool-postgres", "sqlx/postgres"] 
+sqlite = ["sqlx/sqlite"]
+testing = ["postgres"]
+rocksdb = []
+
+[[bench]]
+name = "db_bench"
+harness = false

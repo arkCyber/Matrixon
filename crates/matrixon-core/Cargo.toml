@@ -1,0 +1,33 @@
+[package]
+name = "matrixon-core"
+version = "0.11.0-alpha"
+edition = "2021"
+authors = ["arkSong <arksong2018@gmail.com>"]
+description = "Core types and traits for Matrixon."
+license = "Apache-2.0/MIT"
+repository = "https://github.com/arksong2018/Matrixon"
+
+[dependencies]
+# Core dependencies
+tokio = { version = "1.36", features = ["full"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "1.0"
+async-trait = "0.1"
+futures = "0.3"
+deadpool = "0.9"
+
+# Matrix dependencies
+ruma = { version = "0.12.3", features = ["client-api"] }
+
+# Utilities
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1.7", features = ["v4", "serde"] }
+
+[dev-dependencies]
+tokio-test = "0.4"
+mockall = "0.12"
+test-log = "0.2"
+tempfile = "3.8"

@@ -1,0 +1,23 @@
+global:
+  smtp_smarthost: 'localhost:587'
+  smtp_from: 'alerts@matrixon.localhost'
+
+route:
+  group_by: ['alertname']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 1h
+  receiver: 'web.hook'
+  routes:
+  - match:
+      severity: critical
+    receiver: 'critical-alerts'
+
+receivers:
+- name: 'web.hook'
+  webhook_configs:
+  - url: 'http://127.0.0.1:5001/'
+
+- name: 'critical-alerts'
+  webhook_configs:
+  - url: 'http://127.0.0.1:5001/critical' 

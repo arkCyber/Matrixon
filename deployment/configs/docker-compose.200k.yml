@@ -1,0 +1,480 @@
+version: '3.8'
+
+services:
+  # PostgreSQL cluster for high performance
+  postgres-primary:
+    image: postgres:16-alpine
+    container_name: matrixon-postgres-primary
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: matrixon
+      POSTGRES_USER: matrixon
+      POSTGRES_PASSWORD: matrixon_secure_password_change_me
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+      POSTGRES_MAX_CONNECTIONS: 20000
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_primary_data:/var/lib/postgresql/data
+      - ./migrations:/docker-entrypoint-initdb.d
+      - ./postgresql.conf:/etc/postgresql/postgresql.conf
+    command: 
+      - "postgres"
+      - "-c"
+      - "config_file=/etc/postgresql/postgresql.conf"
+      - "-c"
+      - "max_connections=20000"
+      - "-c"
+      - "shared_buffers=16GB"
+      - "-c"
+      - "effective_cache_size=48GB"
+    deploy:
+      resources:
+        limits:
+          memory: 32G
+          cpus: '16.0'
+        reservations:
+          memory: 16G
+          cpus: '8.0'
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U matrixon -d matrixon"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+    networks:
+      - matrixon-net
+
+  # PostgreSQL read replica for read operations
+  postgres-replica:
+    image: postgres:16-alpine
+    container_name: matrixon-postgres-replica
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: matrixon
+      POSTGRES_USER: matrixon
+      POSTGRES_PASSWORD: matrixon_secure_password_change_me
+      PGUSER: postgres
+      POSTGRES_MASTER_SERVICE: postgres-primary
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_replica_data:/var/lib/postgresql/data
+    depends_on:
+      - postgres-primary
+    deploy:
+      resources:
+        limits:
+          memory: 16G
+          cpus: '8.0'
+        reservations:
+          memory: 8G
+          cpus: '4.0'
+    networks:
+      - matrixon-net
+
+  # Redis Cluster - Master nodes
+  redis-master-1:
+    image: redis:7-alpine
+    container_name: matrixon-redis-master-1
+    restart: unless-stopped
+    ports:
+      - "7001:7000"
+      - "17001:17000"
+    volumes:
+      - redis_master_1_data:/data
+      - ./configs/redis-cluster.conf:/usr/local/etc/redis/redis.conf
+    command: redis-server /usr/local/etc/redis/redis.conf --port 7000 --cluster-announce-ip 172.20.0.10
+    networks:
+      matrixon-net:
+        ipv4_address: 172.20.0.10
+
+  redis-master-2:
+    image: redis:7-alpine
+    container_name: matrixon-redis-master-2
+    restart: unless-stopped
+    ports:
+      - "7002:7000"
+      - "17002:17000"
+    volumes:
+      - redis_master_2_data:/data
+      - ./configs/redis-cluster.conf:/usr/local/etc/redis/redis.conf
+    command: redis-server /usr/local/etc/redis/redis.conf --port 7000 --cluster-announce-ip 172.20.0.11
+    networks:
+      matrixon-net:
+        ipv4_address: 172.20.0.11
+
+  redis-master-3:
+    image: redis:7-alpine
+    container_name: matrixon-redis-master-3
+    restart: unless-stopped
+    ports:
+      - "7003:7000"
+      - "17003:17000"
+    volumes:
+      - redis_master_3_data:/data
+      - ./configs/redis-cluster.conf:/usr/local/etc/redis/redis.conf
+    command: redis-server /usr/local/etc/redis/redis.conf --port 7000 --cluster-announce-ip 172.20.0.12
+    networks:
+      matrixon-net:
+        ipv4_address: 172.20.0.12
+
+  # Redis Cluster - Slave nodes
+  redis-slave-1:
+    image: redis:7-alpine
+    container_name: matrixon-redis-slave-1
+    restart: unless-stopped
+    ports:
+      - "7004:7000"
+      - "17004:17000"
+    volumes:
+      - redis_slave_1_data:/data
+      - ./configs/redis-cluster.conf:/usr/local/etc/redis/redis.conf
+    command: redis-server /usr/local/etc/redis/redis.conf --port 7000 --cluster-announce-ip 172.20.0.13
+    networks:
+      matrixon-net:
+        ipv4_address: 172.20.0.13
+
+  redis-slave-2:
+    image: redis:7-alpine
+    container_name: matrixon-redis-slave-2
+    restart: unless-stopped
+    ports:
+      - "7005:7000"
+      - "17005:17000"
+    volumes:
+      - redis_slave_2_data:/data
+      - ./configs/redis-cluster.conf:/usr/local/etc/redis/redis.conf
+    command: redis-server /usr/local/etc/redis/redis.conf --port 7000 --cluster-announce-ip 172.20.0.14
+    networks:
+      matrixon-net:
+        ipv4_address: 172.20.0.14
+
+  redis-slave-3:
+    image: redis:7-alpine
+    container_name: matrixon-redis-slave-3
+    restart: unless-stopped
+    ports:
+      - "7006:7000"
+      - "17006:17000"
+    volumes:
+      - redis_slave_3_data:/data
+      - ./configs/redis-cluster.conf:/usr/local/etc/redis/redis.conf
+    command: redis-server /usr/local/etc/redis/redis.conf --port 7000 --cluster-announce-ip 172.20.0.15
+    networks:
+      matrixon-net:
+        ipv4_address: 172.20.0.15
+
+  # Redis Cluster initialization
+  redis-cluster-init:
+    image: redis:7-alpine
+    container_name: matrixon-redis-cluster-init
+    depends_on:
+      - redis-master-1
+      - redis-master-2
+      - redis-master-3
+      - redis-slave-1
+      - redis-slave-2
+      - redis-slave-3
+    command: >
+      sh -c "
+        sleep 10 &&
+        redis-cli --cluster create 
+        172.20.0.10:7000 172.20.0.11:7000 172.20.0.12:7000 
+        172.20.0.13:7000 172.20.0.14:7000 172.20.0.15:7000 
+        --cluster-replicas 1 --cluster-yes
+      "
+    networks:
+      - matrixon-net
+
+  # Nginx Load Balancer
+  nginx:
+    image: nginx:alpine
+    container_name: matrixon-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"  # Status endpoint
+    volumes:
+      - ./configs/nginx-load-balancer.conf:/etc/nginx/nginx.conf
+      - ./ssl:/etc/ssl
+    depends_on:
+      - matrixon-1
+      - matrixon-2
+      - matrixon-3
+      - matrixon-4
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '4.0'
+        reservations:
+          memory: 512M
+          cpus: '2.0'
+    networks:
+      - matrixon-net
+
+  # matrixon instances
+  matrixon-1:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        FEATURES: backend_postgresql
+    container_name: matrixon-instance-1
+    restart: unless-stopped
+    ports:
+      - "8001:8008"
+      - "9091:9090"
+    environment:
+      matrixon_CONFIG: /app/configs/instance_1.toml
+      RUST_LOG: info
+      MALLOC_CONF: "background_thread:true,metadata_thp:auto"
+    volumes:
+      - ./configs/instance_1.toml:/app/configs/instance_1.toml
+      - matrixon_1_data:/var/lib/matrixon
+    depends_on:
+      - postgres-primary
+      - redis-master-1
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+          cpus: '4.0'
+        reservations:
+          memory: 4G
+          cpus: '2.0'
+    networks:
+      - matrixon-net
+
+  matrixon-2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        FEATURES: backend_postgresql
+    container_name: matrixon-instance-2
+    restart: unless-stopped
+    ports:
+      - "8002:8008"
+      - "9092:9090"
+    environment:
+      matrixon_CONFIG: /app/configs/instance_2.toml
+      RUST_LOG: info
+      MALLOC_CONF: "background_thread:true,metadata_thp:auto"
+    volumes:
+      - ./configs/instance_2.toml:/app/configs/instance_2.toml
+      - matrixon_2_data:/var/lib/matrixon
+    depends_on:
+      - postgres-primary
+      - redis-master-2
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+          cpus: '4.0'
+        reservations:
+          memory: 4G
+          cpus: '2.0'
+    networks:
+      - matrixon-net
+
+  matrixon-3:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        FEATURES: backend_postgresql
+    container_name: matrixon-instance-3
+    restart: unless-stopped
+    ports:
+      - "8003:8008"
+      - "9093:9090"
+    environment:
+      matrixon_CONFIG: /app/configs/instance_3.toml
+      RUST_LOG: info
+      MALLOC_CONF: "background_thread:true,metadata_thp:auto"
+    volumes:
+      - ./configs/instance_3.toml:/app/configs/instance_3.toml
+      - matrixon_3_data:/var/lib/matrixon
+    depends_on:
+      - postgres-primary
+      - redis-master-3
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+          cpus: '4.0'
+        reservations:
+          memory: 4G
+          cpus: '2.0'
+    networks:
+      - matrixon-net
+
+  matrixon-4:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        FEATURES: backend_postgresql
+    container_name: matrixon-instance-4
+    restart: unless-stopped
+    ports:
+      - "8004:8008"
+      - "9094:9090"
+    environment:
+      matrixon_CONFIG: /app/configs/instance_4.toml
+      RUST_LOG: info
+      MALLOC_CONF: "background_thread:true,metadata_thp:auto"
+    volumes:
+      - ./configs/instance_4.toml:/app/configs/instance_4.toml
+      - matrixon_4_data:/var/lib/matrixon
+    depends_on:
+      - postgres-primary
+      - redis-master-1
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+          cpus: '4.0'
+        reservations:
+          memory: 4G
+          cpus: '2.0'
+    networks:
+      - matrixon-net
+
+  # Prometheus for metrics collection
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: matrixon-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./configs/prometheus-200k.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.enable-lifecycle'
+      - '--storage.tsdb.wal-compression'
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+          cpus: '2.0'
+    networks:
+      - matrixon-net
+
+  # Grafana for monitoring dashboard
+  grafana:
+    image: grafana/grafana:latest
+    container_name: matrixon-grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin_change_me_200k
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./configs/grafana/dashboards:/var/lib/grafana/dashboards
+      - ./configs/grafana/provisioning:/etc/grafana/provisioning
+    depends_on:
+      - prometheus
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+    networks:
+      - matrixon-net
+
+  # Node Exporter for system metrics
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: matrixon-node-exporter
+    restart: unless-stopped
+    ports:
+      - "9100:9100"
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    networks:
+      - matrixon-net
+
+  # Redis Exporter for Redis metrics
+  redis-exporter:
+    image: oliver006/redis_exporter:latest
+    container_name: matrixon-redis-exporter
+    restart: unless-stopped
+    ports:
+      - "9121:9121"
+    environment:
+      REDIS_ADDR: "redis://redis-master-1:7000,redis://redis-master-2:7000,redis://redis-master-3:7000"
+    depends_on:
+      - redis-master-1
+      - redis-master-2
+      - redis-master-3
+    networks:
+      - matrixon-net
+
+  # PostgreSQL Exporter for database metrics
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:latest
+    container_name: matrixon-postgres-exporter
+    restart: unless-stopped
+    ports:
+      - "9187:9187"
+    environment:
+      DATA_SOURCE_NAME: "postgresql://matrixon:matrixon_secure_password_change_me@postgres-primary:5432/matrixon?sslmode=disable"
+    depends_on:
+      - postgres-primary
+    networks:
+      - matrixon-net
+
+volumes:
+  postgres_primary_data:
+    driver: local
+  postgres_replica_data:
+    driver: local
+  redis_master_1_data:
+    driver: local
+  redis_master_2_data:
+    driver: local
+  redis_master_3_data:
+    driver: local
+  redis_slave_1_data:
+    driver: local
+  redis_slave_2_data:
+    driver: local
+  redis_slave_3_data:
+    driver: local
+  matrixon_1_data:
+    driver: local
+  matrixon_2_data:
+    driver: local
+  matrixon_3_data:
+    driver: local
+  matrixon_4_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+
+networks:
+  matrixon-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16 

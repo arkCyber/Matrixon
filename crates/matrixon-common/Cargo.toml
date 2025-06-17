@@ -1,0 +1,26 @@
+[package]
+name = "matrixon-common"
+version = "0.11.0-alpha"
+edition = "2021"
+authors = ["arkSong <arksong2018@gmail.com>"]
+license = "Apache-2.0/MIT"
+repository = "https://github.com/arksong2018/Matrixon"
+description = "Common utilities and types for Matrixon Matrix Server"
+readme = "README.md"
+
+[dependencies]
+tracing = { workspace = true }
+chrono = { version = "0.4", features = ["serde"] }
+serde_json = { workspace = true }
+serde = { workspace = true }
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+tokio = { workspace = true }
+async-trait = { workspace = true }
+futures = { workspace = true }
+uuid = { version = "1.7", features = ["v7"] }
+ruma = { version = "0.12.3", features = ["compat", "api", "client-api-s"] }
+deadpool = "0.10"
+
+[dev-dependencies]
+test-log = "0.2"

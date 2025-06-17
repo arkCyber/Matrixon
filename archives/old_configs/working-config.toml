@@ -1,0 +1,11 @@
+# Matrixon Simple Test Configuration
+server_name = "localhost:8008"
+address = "0.0.0.0"
+port = 8008
+database_url = "sqlite:matrixon_test.db"
+allow_registration = true
+allow_federation = true
+allow_jaeger = false
+tracing_flame = false
+log = "info"
+max_request_size = 67108864 

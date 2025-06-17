@@ -1,0 +1,17 @@
+# Test configuration for matrixon Matrix Server tests
+
+[database]
+backend = "memory"  # Use in-memory database for tests
+max_connections = 10
+
+[performance]
+max_operation_time_ms = 1000
+max_concurrent_operations = 100
+
+[matrix]
+server_name = "test.example.com"
+test_federation = false
+
+[logging]
+level = "debug"
+test_writer = true

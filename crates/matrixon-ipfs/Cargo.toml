@@ -1,0 +1,49 @@
+[package]
+name = "matrixon-ipfs"
+version = "0.1.0"
+edition = "2021"
+authors = ["arkSong <arksong2018@gmail.com>"]
+license = "MIT"
+repository = "https://github.com/arksong/Matrixon"
+description = "IPFS integration for Matrixon distributed storage"
+
+[dependencies]
+hyper = "1.0"
+# Workspace dependencies
+tokio = { workspace = true }
+tracing = { workspace = true }
+async-trait = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+futures = { workspace = true }
+anyhow = { workspace = true }
+matrixon-common = { workspace = true }
+
+# IPFS dependencies
+ipfs-api-backend-hyper = "0.6.0"
+ipfs-api = "0.17"
+cid = "0.8"
+multihash = "0.18"
+libipld = "0.12"
+ipld = "0.0.2"
+# ipfs = { version = "0.1", features = ["tokio"] }  # REMOVED
+ipfs-unixfs = "0.1"
+# ipfs-http = "0.1"  # REMOVED
+# ipfs-http-client = "0.1"  # REMOVED
+
+# Logging
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Stream handling
+tokio-stream = "0.1"
+futures-util = "0.3"
+
+# Cache
+lru = "0.12"
+
+[dev-dependencies]
+tokio-test = { workspace = true }
+test-log = { workspace = true }
+mockall = "0.12"
+tempfile = "3.8"

@@ -1,0 +1,327 @@
+# Matrixon Matrix Server - Prometheus Alerting Rules
+# Author: arkSong (arksong2018@gmail.com)
+# Date: 2024-12-19
+# Version: 1.0
+# Purpose: Monitor critical thresholds and resource usage for Matrixon services
+
+groups:
+  # PostgreSQL Database Alerts
+  - name: postgresql_alerts
+    rules:
+      - alert: PostgreSQLDown
+        expr: pg_up == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: postgres
+        annotations:
+          summary: "PostgreSQL instance is down"
+          description: "PostgreSQL database has been down for more than 1 minute"
+
+      - alert: PostgreSQLConnectionPoolHigh
+        expr: pg_stat_activity_count > 150
+        for: 2m
+        labels:
+          severity: warning
+          service: postgres
+        annotations:
+          summary: "PostgreSQL connection pool usage high"
+          description: "PostgreSQL has {{ $value }} active connections (threshold: 150)"
+
+      - alert: PostgreSQLConnectionPoolCritical
+        expr: pg_stat_activity_count > 180
+        for: 1m
+        labels:
+          severity: critical
+          service: postgres
+        annotations:
+          summary: "PostgreSQL connection pool nearly exhausted"
+          description: "PostgreSQL has {{ $value }} active connections (critical threshold: 180/200)"
+
+      - alert: PostgreSQLSlowQueries
+        expr: rate(pg_stat_activity_max_tx_duration[5m]) > 30
+        for: 3m
+        labels:
+          severity: warning
+          service: postgres
+        annotations:
+          summary: "PostgreSQL slow queries detected"
+          description: "Long-running queries detected with average duration > 30 seconds"
+
+      - alert: PostgreSQLDeadlocks
+        expr: rate(pg_stat_database_deadlocks[5m]) > 0
+        for: 1m
+        labels:
+          severity: warning
+          service: postgres
+        annotations:
+          summary: "PostgreSQL deadlocks detected"
+          description: "Database deadlocks detected: {{ $value }} deadlocks/sec"
+
+      - alert: PostgreSQLDiskSpaceHigh
+        expr: (pg_database_size_bytes / (1024^3)) > 50
+        for: 5m
+        labels:
+          severity: warning
+          service: postgres
+        annotations:
+          summary: "PostgreSQL database size growing"
+          description: "Database size is {{ $value }}GB (threshold: 50GB)"
+
+  # Redis Cache Alerts
+  - name: redis_alerts
+    rules:
+      - alert: RedisDown
+        expr: redis_up == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: redis
+        annotations:
+          summary: "Redis instance is down"
+          description: "Redis cache server has been down for more than 1 minute"
+
+      - alert: RedisMemoryHigh
+        expr: (redis_memory_used_bytes / redis_config_maxmemory) > 0.8
+        for: 3m
+        labels:
+          severity: warning
+          service: redis
+        annotations:
+          summary: "Redis memory usage high"
+          description: "Redis memory usage is {{ $value | humanizePercentage }} (threshold: 80%)"
+
+      - alert: RedisConnectionsHigh
+        expr: redis_connected_clients > 800
+        for: 2m
+        labels:
+          severity: warning
+          service: redis
+        annotations:
+          summary: "Redis connection count high"
+          description: "Redis has {{ $value }} connected clients (threshold: 800)"
+
+      - alert: RedisKeyspaceHitRateLow
+        expr: (rate(redis_keyspace_hits_total[5m]) / (rate(redis_keyspace_hits_total[5m]) + rate(redis_keyspace_misses_total[5m]))) < 0.8
+        for: 5m
+        labels:
+          severity: warning
+          service: redis
+        annotations:
+          summary: "Redis cache hit rate low"
+          description: "Redis cache hit rate is {{ $value | humanizePercentage }} (threshold: 80%)"
+
+  # System Resource Alerts
+  - name: system_alerts
+    rules:
+      - alert: HighCPUUsage
+        expr: 100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 3m
+        labels:
+          severity: warning
+          service: system
+        annotations:
+          summary: "High CPU usage detected"
+          description: "CPU usage is {{ $value | humanizePercentage }} on {{ $labels.instance }}"
+
+      - alert: CriticalCPUUsage
+        expr: 100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 95
+        for: 1m
+        labels:
+          severity: critical
+          service: system
+        annotations:
+          summary: "Critical CPU usage detected"
+          description: "CPU usage is {{ $value | humanizePercentage }} on {{ $labels.instance }}"
+
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) > 0.85
+        for: 3m
+        labels:
+          severity: warning
+          service: system
+        annotations:
+          summary: "High memory usage detected"
+          description: "Memory usage is {{ $value | humanizePercentage }} on {{ $labels.instance }}"
+
+      - alert: CriticalMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) > 0.95
+        for: 1m
+        labels:
+          severity: critical
+          service: system
+        annotations:
+          summary: "Critical memory usage detected"
+          description: "Memory usage is {{ $value | humanizePercentage }} on {{ $labels.instance }}"
+
+      - alert: DiskSpaceHigh
+        expr: (1 - (node_filesystem_avail_bytes{fstype!="tmpfs"} / node_filesystem_size_bytes{fstype!="tmpfs"})) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          service: system
+        annotations:
+          summary: "Disk space usage high"
+          description: "Disk usage is {{ $value | humanizePercentage }} on {{ $labels.instance }}, mount: {{ $labels.mountpoint }}"
+
+      - alert: DiskSpaceCritical
+        expr: (1 - (node_filesystem_avail_bytes{fstype!="tmpfs"} / node_filesystem_size_bytes{fstype!="tmpfs"})) > 0.9
+        for: 2m
+        labels:
+          severity: critical
+          service: system
+        annotations:
+          summary: "Critical disk space usage"
+          description: "Disk usage is {{ $value | humanizePercentage }} on {{ $labels.instance }}, mount: {{ $labels.mountpoint }}"
+
+      - alert: HighNetworkTraffic
+        expr: rate(node_network_receive_bytes_total[5m]) + rate(node_network_transmit_bytes_total[5m]) > 100000000
+        for: 5m
+        labels:
+          severity: warning
+          service: system
+        annotations:
+          summary: "High network traffic detected"
+          description: "Network traffic is {{ $value | humanize }}B/s on {{ $labels.instance }}"
+
+  # Container Resource Alerts
+  - name: container_alerts
+    rules:
+      - alert: ContainerCPUUsageHigh
+        expr: rate(container_cpu_usage_seconds_total{name!=""}[5m]) * 100 > 80
+        for: 3m
+        labels:
+          severity: warning
+          service: docker
+        annotations:
+          summary: "Container CPU usage high"
+          description: "Container {{ $labels.name }} CPU usage is {{ $value | humanizePercentage }}"
+
+      - alert: ContainerMemoryUsageHigh
+        expr: (container_memory_usage_bytes{name!=""} / container_spec_memory_limit_bytes{name!=""}) > 0.8
+        for: 3m
+        labels:
+          severity: warning
+          service: docker
+        annotations:
+          summary: "Container memory usage high"
+          description: "Container {{ $labels.name }} memory usage is {{ $value | humanizePercentage }}"
+
+      - alert: ContainerRestartFrequent
+        expr: rate(container_last_seen[5m]) > 0
+        for: 1m
+        labels:
+          severity: warning
+          service: docker
+        annotations:
+          summary: "Container restarting frequently"
+          description: "Container {{ $labels.name }} has restarted"
+
+  # Application-Specific Alerts
+  - name: matrixon_alerts
+    rules:
+      - alert: MatrixonServerDown
+        expr: up{job="matrixon-server"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: matrixon
+        annotations:
+          summary: "Matrixon server is down"
+          description: "Matrixon Matrix server has been unreachable for more than 1 minute"
+
+      - alert: MatrixonHighResponseTime
+        expr: http_request_duration_seconds{quantile="0.95"} > 2
+        for: 3m
+        labels:
+          severity: warning
+          service: matrixon
+        annotations:
+          summary: "Matrixon server high response time"
+          description: "95th percentile response time is {{ $value }}s (threshold: 2s)"
+
+      - alert: MatrixonHighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) > 0.05
+        for: 2m
+        labels:
+          severity: warning
+          service: matrixon
+        annotations:
+          summary: "Matrixon server high error rate"
+          description: "Error rate is {{ $value | humanizePercentage }} (threshold: 5%)"
+
+      - alert: MatrixonConnectionPoolExhausted
+        expr: matrixon_connection_pool_active / matrixon_connection_pool_max > 0.9
+        for: 1m
+        labels:
+          severity: critical
+          service: matrixon
+        annotations:
+          summary: "Matrixon connection pool nearly exhausted"
+          description: "Connection pool usage is {{ $value | humanizePercentage }} ({{ $labels.pool_name }})"
+
+  # Security Alerts
+  - name: security_alerts
+    rules:
+      - alert: SuspiciousAuthenticationActivity
+        expr: increase(matrixon_failed_auth_total[5m]) > 50
+        for: 1m
+        labels:
+          severity: critical
+          service: security
+        annotations:
+          summary: "Suspicious authentication activity detected"
+          description: "{{ $value }} failed authentication attempts in 5 minutes"
+
+      - alert: UnauthorizedAccessAttempt
+        expr: increase(nginx_http_requests_total{status="401"}[5m]) > 100
+        for: 2m
+        labels:
+          severity: warning
+          service: security
+        annotations:
+          summary: "High number of unauthorized access attempts"
+          description: "{{ $value }} 401 responses in 5 minutes"
+
+      - alert: DDoSAttackSuspected
+        expr: rate(nginx_http_requests_total[1m]) > 1000
+        for: 2m
+        labels:
+          severity: critical
+          service: security
+        annotations:
+          summary: "Potential DDoS attack detected"
+          description: "Request rate is {{ $value }} req/s (threshold: 1000 req/s)"
+
+  # Elasticsearch Alerts
+  - name: elasticsearch_alerts
+    rules:
+      - alert: ElasticsearchDown
+        expr: up{job="elasticsearch"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: elasticsearch
+        annotations:
+          summary: "Elasticsearch is down"
+          description: "Elasticsearch cluster has been down for more than 1 minute"
+
+      - alert: ElasticsearchClusterHealthYellow
+        expr: elasticsearch_cluster_health_status{color="yellow"} == 1
+        for: 5m
+        labels:
+          severity: warning
+          service: elasticsearch
+        annotations:
+          summary: "Elasticsearch cluster health is yellow"
+          description: "Elasticsearch cluster health has been yellow for 5 minutes"
+
+      - alert: ElasticsearchClusterHealthRed
+        expr: elasticsearch_cluster_health_status{color="red"} == 1
+        for: 1m
+        labels:
+          severity: critical
+          service: elasticsearch
+        annotations:
+          summary: "Elasticsearch cluster health is red"
+          description: "Elasticsearch cluster health is red - immediate attention required" 

@@ -1,0 +1,28 @@
+{
+    "identity": {
+        "username": "matrixon-bot@matrixon.local",
+        "password": "your-secure-password",
+        "display_name": "Matrixon Bot",
+        "avatar_url": null
+    },
+    "commands": {
+        "prefix": "!",
+        "enabled_commands": [
+            "help",
+            "status",
+            "ping"
+        ],
+        "cooldown": 1,
+        "max_length": 1000
+    },
+    "plugins": {
+        "enabled_plugins": [],
+        "plugin_dir": "plugins",
+        "plugin_config": {}
+    },
+    "performance": {
+        "max_concurrent_commands": 100,
+        "command_timeout": 5000,
+        "message_queue_size": 1000
+    }
+} 

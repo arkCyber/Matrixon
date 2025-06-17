@@ -1,0 +1,35 @@
+[package]
+name = "matrixon-simple"
+version = "0.11.0-alpha"
+edition = "2021"
+authors = ["arkSong <arksong2018@gmail.com>"]
+license = "Apache-2.0/MIT"
+description = "Matrixon Simple - Matrix Server Test Version"
+
+[[bin]]
+name = "matrixon-simple"
+path = "src/simple_main.rs"
+
+[dependencies]
+# Core async runtime
+tokio = { version = "1.36", features = ["full"] }
+
+# Web framework
+axum = { version = "0.7", features = ["ws"] }
+tower = "0.4"
+tower-http = { version = "0.5", features = ["trace", "cors"] }
+hyper = "1.0"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Logging and tracing
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Time handling
+chrono = { version = "0.4", features = ["serde"] }
+
+# UUID generation
+uuid = { version = "1.7", features = ["v4", "serde"] } 

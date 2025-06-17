@@ -1,0 +1,34 @@
+[package]
+name = "matrixon-e2ee"
+version = "0.1.0"
+edition = "2021"
+authors = ["arkSong <arksong2018@gmail.com>"]
+license = "Apache-2.0/MIT"
+repository = "https://github.com/arksong2018/Matrixon"
+description = "End-to-End Encryption for Matrixon Matrix Server"
+
+[dependencies]
+# Workspace dependencies
+matrixon-common = { workspace = true }
+matrixon-core = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+async-trait = { workspace = true }
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+
+# Matrix and crypto dependencies
+ruma = { workspace = true }
+ring = "0.17"
+rand = "0.8"
+base64 = "0.21"
+
+# Additional dependencies
+chrono = { workspace = true }
+uuid = { workspace = true }
+
+[dev-dependencies]
+tokio-test = { workspace = true }
+test-log = { workspace = true }

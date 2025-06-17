@@ -1,0 +1,186 @@
+# ===================================================================
+# matrixon Matrix Server - Database Configuration Examples
+# 
+# This file contains example configurations for both SQLite and 
+# PostgreSQL backends. Copy the appropriate section to your
+# matrixon.toml or create separate configuration files.
+# ===================================================================
+
+# ===================================================================
+# SQLite Configuration (Recommended for Development)
+# ===================================================================
+# To use this configuration:
+# 1. Copy this section to a new file (e.g., matrixon-sqlite.toml)
+# 2. Run: export matrixon_CONFIG="matrixon-sqlite.toml"
+# 3. Run: cargo run --features sqlite
+
+[global.sqlite_example]
+# Server identification
+database_backend = "sqlite"
+database_path = "./matrixon.db"
+server_name = "your-server.com"
+
+# Network configuration
+address = "127.0.0.1"
+max_request_size = 20_000_000
+port = 6167
+
+# Features
+allow_federation = true
+allow_registration = true
+enable_lightning_bolt = true
+trusted_servers = ["matrix.org", "mozilla.org"]
+
+# Performance tuning for SQLite
+db_cache_capacity_mb = 256.0
+max_concurrent_requests = 100
+
+# Logging
+log = "warn"
+
+[global.sqlite_example.well_known]
+client = "https://your-server.com"
+
+# ===================================================================
+# PostgreSQL Configuration (Recommended for Production)
+# ===================================================================
+# To use this configuration:
+# 1. Set up PostgreSQL server and create database
+# 2. Copy this section to a new file (e.g., matrixon-postgresql.toml)
+# 3. Run: export matrixon_CONFIG="matrixon-postgresql.toml"
+# 4. Run: cargo run --features backend_postgresql
+
+[global.postgresql_example]
+# Server identification
+database_backend = "postgresql"
+database_path = "postgresql://matrixon:your_password@localhost:5432/matrixon"
+server_name = "your-server.com"
+
+# Network configuration
+address = "0.0.0.0"           # Listen on all interfaces for production
+max_request_size = 20_000_000
+port = 6167
+
+# Features
+allow_federation = true
+allow_registration = true
+enable_lightning_bolt = true
+trusted_servers = ["matrix.org", "mozilla.org"]
+
+# Performance tuning for PostgreSQL
+db_cache_capacity_mb = 1024.0
+max_concurrent_requests = 1000
+
+# Logging
+log = "warn"
+
+[global.postgresql_example.well_known]
+client = "https://your-server.com"
+
+# ===================================================================
+# High Performance PostgreSQL Configuration
+# ===================================================================
+# For servers expecting 1000+ concurrent users
+
+[global.postgresql_high_performance]
+# Server identification
+database_backend = "postgresql"
+database_path = "postgresql://matrixon:your_password@postgres-server:5432/matrixon?sslmode=require"
+server_name = "your-server.com"
+
+# Network configuration
+address = "0.0.0.0"
+max_request_size = 50_000_000
+port = 6167
+
+# Features
+allow_federation = true
+allow_registration = true
+enable_lightning_bolt = true
+trusted_servers = ["matrix.org", "mozilla.org"]
+
+# High performance settings
+db_cache_capacity_mb = 4096.0
+max_concurrent_requests = 10000
+
+# Advanced settings
+max_federation_requests_per_second = 1000
+max_outgoing_concurrent_requests = 100
+
+# Logging
+log = "info"
+
+[global.postgresql_high_performance.well_known]
+client = "https://your-server.com"
+
+# ===================================================================
+# Environment Variables Examples
+# ===================================================================
+# You can also configure the database using environment variables
+# instead of configuration files:
+
+# For SQLite:
+# export matrixon_DATABASE_BACKEND=sqlite
+# export matrixon_DATABASE_PATH="./matrixon.db"
+# export matrixon_SERVER_NAME="your-server.com"
+# export matrixon_PORT=6167
+# cargo run --features sqlite
+
+# For PostgreSQL:
+# export matrixon_DATABASE_BACKEND=postgresql
+# export matrixon_DATABASE_PATH="postgresql://matrixon:password@localhost:5432/matrixon"
+# export matrixon_SERVER_NAME="your-server.com"
+# export matrixon_PORT=6167
+# cargo run --features backend_postgresql
+
+# ===================================================================
+# Database Setup Commands
+# ===================================================================
+
+# SQLite Setup (no additional setup required):
+# The database file will be created automatically
+
+# PostgreSQL Setup:
+# 1. Install PostgreSQL
+# 2. Create user and database:
+#    sudo -u postgres psql
+#    CREATE USER matrixon WITH PASSWORD 'your_password';
+#    CREATE DATABASE matrixon OWNER matrixon;
+#    GRANT ALL PRIVILEGES ON DATABASE matrixon TO matrixon;
+#    \q
+
+# 3. Configure PostgreSQL for performance (in postgresql.conf):
+#    shared_buffers = 256MB
+#    effective_cache_size = 1GB
+#    work_mem = 4MB
+#    maintenance_work_mem = 64MB
+#    max_connections = 1000
+
+# ===================================================================
+# Testing Your Configuration
+# ===================================================================
+
+# Test SQLite:
+# 1. cargo check --features sqlite
+# 2. matrixon_CONFIG="your-sqlite-config.toml" cargo run --features sqlite
+
+# Test PostgreSQL:
+# 1. cargo check --features backend_postgresql
+# 2. Test connection: psql -h localhost -U matrixon -d matrixon -c "SELECT 1;"
+# 3. matrixon_CONFIG="your-postgresql-config.toml" cargo run --features backend_postgresql
+
+# ===================================================================
+# Migration Between Databases
+# ===================================================================
+
+# To migrate from SQLite to PostgreSQL:
+# 1. Export data from SQLite (backup your matrixon.db file)
+# 2. Set up PostgreSQL configuration
+# 3. Start with fresh PostgreSQL database
+# 4. Users will need to re-register (due to different database schemas)
+
+# For production deployments, consider:
+# - Regular database backups
+# - Database replication for high availability
+# - Monitoring database performance
+# - Connection pooling optimization

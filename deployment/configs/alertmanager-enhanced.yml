@@ -1,0 +1,240 @@
+# Matrixon Matrix Server - Enhanced AlertManager Configuration
+# Author: arkSong (arksong2018@gmail.com)
+# Date: 2024-12-19
+# Version: 1.0
+# Purpose: Route and handle alerts with multiple notification channels
+
+global:
+  smtp_smarthost: 'localhost:587'
+  smtp_from: 'alerts@matrixon.com'
+  smtp_auth_username: 'alerts@matrixon.com'
+  smtp_auth_password: 'your_email_password'
+  smtp_require_tls: true
+
+# Templates for alert notifications
+templates:
+  - '/etc/alertmanager/templates/*.tmpl'
+
+# Alert routing configuration
+route:
+  group_by: ['alertname', 'service']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 1h
+  receiver: 'default-receiver'
+  routes:
+    # Critical alerts - immediate notification
+    - match:
+        severity: critical
+      receiver: 'critical-alerts'
+      group_wait: 5s
+      repeat_interval: 5m
+      continue: true
+
+    # Security alerts - high priority
+    - match:
+        service: security
+      receiver: 'security-team'
+      group_wait: 5s
+      repeat_interval: 15m
+      continue: true
+
+    # Database alerts - DBA team
+    - match_re:
+        service: ^(postgres|redis)$
+      receiver: 'database-team'
+      group_wait: 30s
+      repeat_interval: 30m
+
+    # System alerts - infrastructure team
+    - match:
+        service: system
+      receiver: 'infrastructure-team'
+      group_wait: 1m
+      repeat_interval: 1h
+
+    # Application alerts - development team
+    - match:
+        service: matrixon
+      receiver: 'development-team'
+      group_wait: 1m
+      repeat_interval: 30m
+
+    # Container alerts - DevOps team
+    - match:
+        service: docker
+      receiver: 'devops-team'
+      group_wait: 2m
+      repeat_interval: 1h
+
+# Alert receivers and notification channels
+receivers:
+  # Default receiver for unmatched alerts
+  - name: 'default-receiver'
+    email_configs:
+      - to: 'admin@matrixon.com'
+        subject: 'Matrixon Alert: {{ .GroupLabels.alertname }}'
+        body: |
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          Severity: {{ .Labels.severity }}
+          Service: {{ .Labels.service }}
+          Time: {{ .StartsAt }}
+          {{ end }}
+    webhook_configs:
+      - url: 'http://localhost:9093/webhook'
+        send_resolved: true
+
+  # Critical alerts - multiple channels
+  - name: 'critical-alerts'
+    email_configs:
+      - to: 'critical@matrixon.com'
+        subject: '🚨 CRITICAL: {{ .GroupLabels.alertname }}'
+        body: |
+          🚨 CRITICAL ALERT 🚨
+          
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          Service: {{ .Labels.service }}
+          Instance: {{ .Labels.instance }}
+          Started: {{ .StartsAt }}
+          
+          This requires immediate attention!
+          {{ end }}
+        headers:
+          Priority: 'urgent'
+    webhook_configs:
+      - url: 'http://audit-processor:8080/critical-webhook'
+        send_resolved: true
+        http_config:
+          basic_auth:
+            username: 'alert-user'
+            password: 'alert-password'
+
+  # Security team alerts
+  - name: 'security-team'
+    email_configs:
+      - to: 'security@matrixon.com'
+        subject: '🔒 Security Alert: {{ .GroupLabels.alertname }}'
+        body: |
+          🔒 SECURITY ALERT 🔒
+          
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          Service: {{ .Labels.service }}
+          Instance: {{ .Labels.instance }}
+          Severity: {{ .Labels.severity }}
+          Started: {{ .StartsAt }}
+          
+          Please investigate immediately.
+          {{ end }}
+    slack_configs:
+      - api_url: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK'
+        channel: '#security-alerts'
+        title: '🔒 Security Alert'
+        text: '{{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+        send_resolved: true
+
+  # Database team alerts
+  - name: 'database-team'
+    email_configs:
+      - to: 'dba@matrixon.com'
+        subject: '🗄️ Database Alert: {{ .GroupLabels.alertname }}'
+        body: |
+          🗄️ DATABASE ALERT 🗄️
+          
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          Service: {{ .Labels.service }}
+          Database: {{ .Labels.database }}
+          Instance: {{ .Labels.instance }}
+          Started: {{ .StartsAt }}
+          {{ end }}
+    pagerduty_configs:
+      - routing_key: 'your-pagerduty-routing-key'
+        description: '{{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+
+  # Infrastructure team alerts
+  - name: 'infrastructure-team'
+    email_configs:
+      - to: 'infra@matrixon.com'
+        subject: '🖥️ Infrastructure Alert: {{ .GroupLabels.alertname }}'
+        body: |
+          🖥️ INFRASTRUCTURE ALERT 🖥️
+          
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          Instance: {{ .Labels.instance }}
+          Resource: {{ .Labels.resource }}
+          Started: {{ .StartsAt }}
+          {{ end }}
+
+  # Development team alerts
+  - name: 'development-team'
+    email_configs:
+      - to: 'dev@matrixon.com'
+        subject: '⚡ Application Alert: {{ .GroupLabels.alertname }}'
+        body: |
+          ⚡ APPLICATION ALERT ⚡
+          
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          Service: {{ .Labels.service }}
+          Instance: {{ .Labels.instance }}
+          Started: {{ .StartsAt }}
+          {{ end }}
+    slack_configs:
+      - api_url: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK'
+        channel: '#dev-alerts'
+        title: '⚡ Application Alert'
+        text: '{{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+
+  # DevOps team alerts
+  - name: 'devops-team'
+    email_configs:
+      - to: 'devops@matrixon.com'
+        subject: '🐳 Container Alert: {{ .GroupLabels.alertname }}'
+        body: |
+          🐳 CONTAINER ALERT 🐳
+          
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          Container: {{ .Labels.name }}
+          Instance: {{ .Labels.instance }}
+          Started: {{ .StartsAt }}
+          {{ end }}
+
+# Inhibition rules to prevent alert spam
+inhibit_rules:
+  # Inhibit warning alerts when critical alerts are firing
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'instance']
+
+  # Inhibit specific alerts when services are down
+  - source_match:
+      alertname: 'PostgreSQLDown'
+    target_match_re:
+      alertname: 'PostgreSQL.*'
+    equal: ['instance']
+
+  - source_match:
+      alertname: 'RedisDown'
+    target_match_re:
+      alertname: 'Redis.*'
+    equal: ['instance']
+
+  - source_match:
+      alertname: 'MatrixonServerDown'
+    target_match_re:
+      alertname: 'Matrixon.*'
+    equal: ['instance'] 

@@ -1,0 +1,592 @@
+# Matrixon Matrix Server - Consolidated Enterprise Docker Environment
+# Author: arkSong (arksong2018@gmail.com)
+# Date: 2024-12-19
+# Version: 3.0
+# Purpose: Production-ready Matrix server with all configurations consolidated
+
+services:
+  # High-performance PostgreSQL for Matrixon Matrix Server
+  postgres:
+    image: postgres:16-alpine
+    container_name: matrixon-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-matrixon}
+      POSTGRES_USER: ${POSTGRES_USER:-matrixon}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-matrixon_secure_password_change_me}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+      PGDATA: /var/lib/postgresql/data/pgdata
+      # PostgreSQL Performance Configuration
+      POSTGRES_CONFIG: |
+        # Performance tuning for 100k+ connections
+        max_connections = 200
+        shared_buffers = 2GB
+        effective_cache_size = 6GB
+        work_mem = 64MB
+        maintenance_work_mem = 512MB
+        wal_buffers = 64MB
+        checkpoint_completion_target = 0.9
+        checkpoint_timeout = 15min
+        max_wal_size = 4GB
+        min_wal_size = 1GB
+        random_page_cost = 1.1
+        effective_io_concurrency = 200
+        max_worker_processes = 8
+        max_parallel_workers_per_gather = 4
+        max_parallel_workers = 8
+        # Enhanced Audit Logging Configuration
+        log_destination = 'stderr,csvlog'
+        log_directory = '/var/log/postgresql'
+        log_filename = 'postgresql-%Y-%m-%d_%H%M%S.log'
+        log_rotation_age = 1d
+        log_rotation_size = 100MB
+        log_truncate_on_rotation = on
+        log_statement = 'all'
+        log_min_duration_statement = 100
+        log_checkpoints = on
+        log_connections = on
+        log_disconnections = on
+        log_lock_waits = on
+        log_temp_files = 0
+        log_line_prefix = '%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h '
+        log_timezone = 'UTC'
+        # Security and Audit Logging
+        log_statement_stats = on
+        log_parser_stats = on
+        log_planner_stats = on
+        log_executor_stats = on
+        log_hostname = on
+        log_duration = on
+        log_error_verbosity = verbose
+        # Authentication and authorization logging
+        log_min_error_statement = error
+        track_activity_query_size = 2048
+        track_io_timing = on
+        track_functions = all
+        track_counts = on
+        autovacuum = on
+        autovacuum_max_workers = 4
+        autovacuum_naptime = 30s
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - postgres_logs:/var/log/postgresql
+      - ./migrations:/docker-entrypoint-initdb.d
+    command:
+      - "postgres"
+      - "-c"
+      - "max_connections=200"
+      - "-c"
+      - "shared_buffers=2GB"
+      - "-c"
+      - "effective_cache_size=6GB"
+      - "-c"
+      - "work_mem=64MB"
+      - "-c"
+      - "log_statement=all"
+      - "-c"
+      - "log_min_duration_statement=100"
+      - "-c"
+      - "log_destination=stderr,csvlog"
+      - "-c"
+      - "log_directory=/var/log/postgresql"
+      - "-c"
+      - "log_filename=postgresql-%Y-%m-%d_%H%M%S.log"
+      - "-c"
+      - "log_rotation_age=1d"
+      - "-c"
+      - "log_rotation_size=100MB"
+      - "-c"
+      - "log_line_prefix=%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h "
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+          cpus: '4.0'
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U matrixon -d matrixon"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - matrixon-network
+    labels:
+      - "matrixon.service=postgres"
+
+  # Redis for caching and session management
+  redis:
+    image: redis:7-alpine
+    container_name: matrixon-redis
+    restart: unless-stopped
+    environment:
+      # Redis Configuration
+      REDIS_CONFIG: |
+        # Memory and performance settings
+        maxmemory 1gb
+        maxmemory-policy allkeys-lru
+        timeout 300
+        tcp-keepalive 60
+        # Security
+        requirepass ${REDIS_PASSWORD:-matrixon_redis_password_change_me}
+        # Persistence
+        save 900 1
+        save 300 10
+        save 60 10000
+        # Logging
+        loglevel notice
+        # Network
+        tcp-backlog 511
+        # Performance
+        hash-max-ziplist-entries 512
+        hash-max-ziplist-value 64
+        list-max-ziplist-size -2
+        set-max-intset-entries 512
+        zset-max-ziplist-entries 128
+        zset-max-ziplist-value 64
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: |
+      sh -c "
+        echo \"$${REDIS_CONFIG}\" > /tmp/redis.conf &&
+        redis-server /tmp/redis.conf
+      "
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "matrixon_redis_password_change_me", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    networks:
+      - matrixon-network
+    labels:
+      - "matrixon.service=redis"
+
+  # PostgreSQL Exporter for metrics
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:latest
+    container_name: matrixon-postgres-exporter
+    restart: unless-stopped
+    environment:
+      DATA_SOURCE_NAME: "postgresql://matrixon:matrixon_secure_password_change_me@postgres:5432/matrixon?sslmode=disable"
+    ports:
+      - "9187:9187"
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - matrixon-network
+
+  # Redis Exporter for metrics
+  redis-exporter:
+    image: oliver006/redis_exporter:latest
+    container_name: matrixon-redis-exporter
+    restart: unless-stopped
+    environment:
+      REDIS_ADDR: "redis://redis:6379"
+      REDIS_PASSWORD: "${REDIS_PASSWORD:-matrixon_redis_password_change_me}"
+    ports:
+      - "9121:9121"
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - matrixon-network
+
+  # Elasticsearch Exporter for metrics
+  elasticsearch-exporter:
+    image: quay.io/prometheuscommunity/elasticsearch-exporter:latest
+    container_name: matrixon-elasticsearch-exporter
+    restart: unless-stopped
+    environment:
+      ES_URI: "http://elasticsearch:9200"
+      ES_ALL: "true"
+      ES_INDICES: "true"
+      ES_SHARDS: "true"
+    ports:
+      - "9114:9114"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    networks:
+      - matrixon-network
+
+  # Node Exporter for system metrics
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: matrixon-node-exporter
+    restart: unless-stopped
+    ports:
+      - "9100:9100"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    networks:
+      - matrixon-network
+
+  # cAdvisor for container metrics
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: matrixon-cadvisor
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    privileged: true
+    devices:
+      - /dev/kmsg
+    networks:
+      - matrixon-network
+
+  # Prometheus for metrics collection
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: matrixon-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - prometheus_data:/prometheus
+      - ./prometheus-simplified.yml:/etc/prometheus/prometheus.yml:ro
+      - ./alert-rules-enhanced.yml:/etc/prometheus/alert-rules.yml:ro
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.enable-lifecycle"
+      - "--web.enable-admin-api"
+      - "--log.level=info"
+      - "--storage.tsdb.retention.time=30d"
+      - "--storage.tsdb.retention.size=50GB"
+    depends_on:
+      - postgres-exporter
+      - redis-exporter
+      - node-exporter
+      - cadvisor
+    networks:
+      - matrixon-network
+
+  # AlertManager for alerting
+  alertmanager:
+    image: prom/alertmanager:latest
+    container_name: matrixon-alertmanager
+    restart: unless-stopped
+    ports:
+      - "9093:9093"
+    volumes:
+      - alertmanager_data:/alertmanager
+      - ./alertmanager-simple.yml:/etc/alertmanager/alertmanager.yml:ro
+    command:
+      - "--config.file=/etc/alertmanager/alertmanager.yml"
+      - "--storage.path=/alertmanager"
+      - "--web.external-url=http://localhost:9093"
+      - "--cluster.listen-address=0.0.0.0:9094"
+      - "--log.level=info"
+    networks:
+      - matrixon-network
+    depends_on:
+      - prometheus
+
+  # Grafana for monitoring dashboards
+  grafana:
+    image: grafana/grafana:latest
+    container_name: matrixon-grafana
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin_change_me}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource,grafana-piechart-panel
+      - GF_SERVER_ROOT_URL=http://localhost:3001
+      - GF_DATABASE_WAL=true
+      - GF_LOG_LEVEL=info
+      - GF_SERVER_ENABLE_GZIP=true
+      - GF_ANALYTICS_REPORTING_ENABLED=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+    depends_on:
+      prometheus:
+        condition: service_started
+      elasticsearch:
+        condition: service_healthy
+    networks:
+      - matrixon-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/api/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 120s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+
+  # NGINX Load Balancer
+  nginx:
+    image: nginx:alpine
+    container_name: matrixon-nginx
+    restart: unless-stopped
+    environment:
+      # NGINX Configuration
+      NGINX_CONFIG: |
+        events {
+            worker_connections 1024;
+            use epoll;
+            multi_accept on;
+        }
+        
+        http {
+            include /etc/nginx/mime.types;
+            default_type application/octet-stream;
+            
+            log_format main '$$remote_addr - $$remote_user [$$time_local] "$$request" '
+                           '$$status $$body_bytes_sent "$$http_referer" '
+                           '"$$http_user_agent" rt=$$request_time';
+            
+            access_log /var/log/nginx/access.log main;
+            error_log /var/log/nginx/error.log;
+            
+            sendfile on;
+            tcp_nopush on;
+            tcp_nodelay on;
+            keepalive_timeout 65;
+            types_hash_max_size 2048;
+            
+            gzip on;
+            gzip_vary on;
+            gzip_min_length 1024;
+            gzip_types text/plain text/css text/xml text/javascript application/javascript application/xml+rss application/json;
+            
+            upstream matrixon_backend {
+                server host.docker.internal:6167;
+                keepalive 32;
+            }
+            
+            server {
+                listen 80 default_server;
+                server_name _;
+                
+                location /_matrix/ {
+                    proxy_pass http://matrixon_backend;
+                    proxy_set_header Host $$host;
+                    proxy_set_header X-Real-IP $$remote_addr;
+                    proxy_set_header X-Forwarded-For $$proxy_add_x_forwarded_for;
+                    proxy_set_header X-Forwarded-Proto $$scheme;
+                    proxy_buffering off;
+                    proxy_read_timeout 300s;
+                    proxy_connect_timeout 75s;
+                }
+                
+                location /nginx_status {
+                    stub_status on;
+                    access_log off;
+                    allow all;
+                }
+            }
+        }
+    ports:
+      - "80:80"
+    command: |
+      sh -c "
+        echo \"$${NGINX_CONFIG}\" > /tmp/nginx.conf &&
+        nginx -c /tmp/nginx.conf -g 'daemon off;'
+      "
+    networks:
+      - matrixon-network
+
+  # Elasticsearch for centralized audit log storage
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: matrixon-elasticsearch
+    restart: unless-stopped
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms2g -Xmx2g
+      - xpack.security.enabled=false
+      - xpack.security.enrollment.enabled=false
+      - "cluster.routing.allocation.disk.threshold_enabled=false"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+          cpus: '2.0'
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - matrixon-network
+
+  # Logstash for audit log processing and enrichment
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.11.0
+    container_name: matrixon-logstash
+    restart: unless-stopped
+    environment:
+      - LS_JAVA_OPTS=-Xms1g -Xmx1g
+    volumes:
+      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
+    ports:
+      - "5044:5044"
+      - "5000:5000"
+    command: ["logstash", "-f", "/usr/share/logstash/pipeline/logstash.conf"]
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    networks:
+      - matrixon-network
+
+  # Filebeat for log shipping and collection
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:8.11.0
+    container_name: matrixon-filebeat
+    restart: unless-stopped
+    user: root
+
+    volumes:
+      - postgres_logs:/var/log/postgresql:ro
+      - /var/log:/var/log/host:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./logs:/var/log/matrixon:ro
+      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+    depends_on:
+      - logstash
+      - postgres
+    networks:
+      - matrixon-network
+
+  # Kibana for audit log visualization and analysis
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.11.0
+    container_name: matrixon-kibana
+    restart: unless-stopped
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - SERVER_NAME=matrixon-kibana
+      - SERVER_HOST=0.0.0.0
+      - XPACK_SECURITY_ENABLED=false
+      - XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY=32-character-long-encryption-key
+    ports:
+      - "5601:5601"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5601/api/status || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - matrixon-network
+
+  # Connection Pool and Resource Monitor
+  resource-monitor:
+    image: postgres:16-alpine
+    container_name: matrixon-resource-monitor
+    restart: unless-stopped
+    environment:
+      - PGPASSWORD=matrixon_secure_password_change_me
+    volumes:
+      - ./connection-pool-monitor.sh:/tmp/monitor.sh:ro
+      - monitoring_logs:/var/log/monitoring
+    command: ["sh", "-c", "apk add --no-cache redis postgresql-client bc netcat-openbsd && chmod +x /tmp/monitor.sh && /tmp/monitor.sh"]
+    depends_on:
+      - postgres
+      - redis
+      - logstash
+    networks:
+      - matrixon-network
+
+  # Audit Event Processor - Custom service for security audit events
+  audit-processor:
+    image: alpine:latest
+    container_name: matrixon-audit-processor
+    restart: unless-stopped
+
+    volumes:
+      - postgres_logs:/var/log/postgresql:ro
+      - audit_logs:/var/log/audit
+      - ./audit.sh:/tmp/audit.sh:ro
+    command: ["sh", "-c", "apk add --no-cache netcat-openbsd && chmod +x /tmp/audit.sh && /tmp/audit.sh"]
+    depends_on:
+      - postgres
+      - logstash
+    networks:
+      - matrixon-network
+
+  # Backup service
+  backup:
+    image: postgres:16-alpine
+    container_name: matrixon-backup
+    restart: "no"
+    environment:
+      - PGPASSWORD=matrixon_secure_password_change_me
+    volumes:
+      - ./backups:/backups
+      - ./backup.sh:/tmp/backup.sh:ro
+    command: ["sh", "-c", "chmod +x /tmp/backup.sh && echo 'Backup service ready. Run: docker exec matrixon-backup /tmp/backup.sh' && tail -f /dev/null"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - matrixon-network
+
+volumes:
+  postgres_data:
+    driver: local
+  postgres_logs:
+    driver: local
+  redis_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+  alertmanager_data:
+    driver: local
+  elasticsearch_data:
+    driver: local
+  audit_logs:
+    driver: local
+  monitoring_logs:
+    driver: local
+
+networks:
+  matrixon-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.22.0.0/16
+          gateway: 172.22.0.1
+    driver_opts:
+      com.docker.network.bridge.name: matrixon-br0
+      com.docker.network.driver.mtu: 1500 

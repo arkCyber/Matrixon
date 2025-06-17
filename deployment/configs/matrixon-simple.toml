@@ -1,0 +1,39 @@
+# Matrixon Simple Configuration for Testing
+# Author: arkSong (arksong2018@gmail.com)
+# Date: 2024-12-19
+# Version: 1.0
+# Purpose: Simplified configuration for testing and development
+
+[global]
+# Server identification
+server_name = "localhost"
+
+# Network configuration
+address = "127.0.0.1"
+port = 6167
+
+# Database backend - using SQLite for simplicity
+database_backend = "sqlite"
+database_path = "./test_database.db"
+
+# Performance settings  
+db_cache_capacity_mb = 256.0
+max_request_size = 20_000_000
+max_concurrent_requests = 100
+
+# Matrix server features
+allow_registration = true
+allow_federation = false  # Disable federation for testing
+allow_room_creation = true
+enable_lightning_bolt = true
+
+# Trusted servers for key verification
+trusted_servers = ["matrix.org"]
+
+# Logging configuration
+log = "info"
+
+# Well-known configuration
+[global.well_known]
+client = "http://localhost:6167"
+server = "localhost:443" 

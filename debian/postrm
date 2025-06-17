@@ -1,0 +1,27 @@
+#!/bin/sh
+set -e
+
+. /usr/share/debconf/confmodule
+
+matrixon_CONFIG_PATH=/etc/matrix-matrixon
+matrixon_DATABASE_PATH=/var/lib/matrix-matrixon
+
+case $1 in
+  purge)
+    # Remove debconf changes from the db
+    db_purge
+
+    # Per https://www.debian.org/doc/debian-policy/ch-files.html#behavior
+    # "configuration files must be preserved when the package is removed, and
+    #  only deleted when the package is purged."
+    if [ -d "$matrixon_CONFIG_PATH" ]; then
+      rm -r "$matrixon_CONFIG_PATH"
+    fi
+
+    if [ -d "$matrixon_DATABASE_PATH" ]; then
+      rm -r "$matrixon_DATABASE_PATH"
+    fi
+    ;;
+esac
+
+#DEBHELPER#

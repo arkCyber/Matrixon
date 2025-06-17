@@ -1,0 +1,139 @@
+# =============================================================================
+# Matrixon Local Development Configuration
+# =============================================================================
+#
+# Project: Matrixon - Ultra High Performance Matrix NextServer
+# Author: arkSong (arksong2018@gmail.com) - Founder of Matrixon Innovation Project
+# Date: 2024-12-11
+# Version: 0.11.0-alpha
+# License: Apache 2.0 / MIT
+#
+# Description:
+#   Local development configuration for Matrixon Matrix server
+#   Connects to Dockerized PostgreSQL and Redis
+#
+# =============================================================================
+
+[server]
+# Server configuration
+server_name = "localhost"
+port = 8008
+federation_port = 8448
+bind_address = "127.0.0.1"
+
+# Performance settings
+max_connections = 10000
+worker_threads = 0  # Auto-detect CPU cores
+enable_metrics = true
+metrics_port = 9090
+
+# Security settings
+enable_registration = true
+registration_shared_secret = "development_secret_key_2024"
+enable_guest_access = false
+require_auth_for_profile_requests = false
+
+[database]
+# PostgreSQL development database (Docker)
+type = "postgresql"
+host = "localhost"
+port = 5432
+database = "matrixon"
+username = "matrixon"
+password = "secure_password_change_me"
+max_connections = 50
+min_connections = 5
+connection_timeout = 30
+
+[federation]
+# Federation configuration (disabled for local dev)
+enabled = false
+server_name = "localhost"
+port = 8448
+max_connections = 100
+rate_limit_per_minute = 50
+request_timeout = 30
+verify_ssl = false
+
+[logging]
+# Logging configuration
+level = "debug"
+format = "pretty"
+output = "stdout"
+enable_access_log = true
+enable_error_log = true
+
+[media]
+# Media storage
+media_store_path = "./data/media"
+max_upload_size = "10M"
+max_image_pixels = 32000000
+enable_thumbnails = true
+thumbnail_sizes = [
+    { width = 32, height = 32, method = "crop" },
+    { width = 96, height = 96, method = "crop" },
+    { width = 320, height = 240, method = "scale" },
+    { width = 640, height = 480, method = "scale" }
+]
+
+[redis]
+# Redis for caching (Docker)
+enabled = true
+host = "localhost"
+port = 6379
+database = 0
+password = ""
+connection_timeout = 5
+
+[rate_limiting]
+# Rate limiting configuration
+enabled = true
+per_second = 1.0
+burst_count = 100
+failed_attempts = 10
+failed_attempts_window = 3600
+
+[turn]
+# TURN server for VoIP (disabled for dev)
+enabled = false
+uris = []
+username = ""
+password = ""
+
+[iot]
+# IoT module configuration (disabled for dev)
+enabled = false
+max_devices = 1000
+message_timeout = 30
+heartbeat_interval = 60
+enable_analytics = false
+enable_security = false
+
+[ai]
+# AI assistant configuration (disabled for dev)
+enabled = false
+openai_api_key = ""
+model = "gpt-3.5-turbo"
+max_tokens = 150
+temperature = 0.7
+
+[web3]
+# Web3 integration (disabled for dev)
+enabled = false
+ethereum_rpc_url = ""
+contract_address = ""
+
+[backup]
+# Backup configuration (disabled for dev)
+enabled = false
+backup_interval = 86400
+backup_path = "./data/backups"
+max_backups = 3
+compress = true
+
+[monitoring]
+# Monitoring and observability
+enabled = true
+prometheus_enabled = true
+jaeger_enabled = false
+health_check_port = 8080 

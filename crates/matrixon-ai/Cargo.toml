@@ -1,0 +1,39 @@
+[package]
+name = "matrixon-ai"
+version = "0.1.0"
+edition = "2021"
+authors = ["arkSong <arksong2018@gmail.com>"]
+license = "MIT"
+repository = "https://github.com/arksong/Matrixon"
+description = "AI services for Matrixon including MCP integration"
+readme = "README.md"
+
+[dependencies]
+ruma = { workspace = true }
+tracing = { workspace = true }
+async-trait = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tokio = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+futures = { workspace = true }
+matrixon-common = { workspace = true }
+http = "1.3.1"
+sqlx = { version = "0.7", features = ["runtime-tokio-rustls", "postgres"] }
+redis = { version = "0.24", features = ["tokio-comp"] }
+# MCP related dependencies
+jsonrpc-core = "18.0.0"
+jsonrpc-http-server = "18.0.0"
+jsonrpc-core-client = "18.0.0"
+jsonrpc-pubsub = "18.0.0"
+jsonrpc-tcp-server = "18.0.0"
+jsonrpc-ws-server = "18.0.0"
+url = "2.5.0"
+reqwest = { version = "0.11", features = ["json"] }
+tokio-tungstenite = "0.20"
+futures-util = "0.3"
+
+[dev-dependencies]
+tokio-test = { workspace = true }
+test-log = { workspace = true }

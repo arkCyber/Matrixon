@@ -1,0 +1,109 @@
+# Prometheus Configuration for Matrixon Matrix Server
+# Author: arkSong (arksong2018@gmail.com)
+# Date: 2024-12-19
+# Version: 2.0
+# Purpose: Complete monitoring configuration for Matrix server performance
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'matrixon-cluster'
+    replica: 'matrixon-01'
+
+rule_files:
+  - "/etc/prometheus/rules/*.yml"
+
+scrape_configs:
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+    scrape_interval: 15s
+    metrics_path: /metrics
+
+  # Matrixon Matrix Server
+  - job_name: 'matrixon'
+    static_configs:
+      - targets: ['host.docker.internal:6167']
+    scrape_interval: 10s
+    metrics_path: /_matrix/metrics
+    scrape_timeout: 10s
+
+  # PostgreSQL Exporter
+  - job_name: 'postgres-exporter'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+    scrape_interval: 15s
+    metrics_path: /metrics
+
+  # Redis Exporter
+  - job_name: 'redis-exporter'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+    scrape_interval: 15s
+    metrics_path: /metrics
+
+  # Node Exporter (System metrics)
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+    scrape_interval: 15s
+    metrics_path: /metrics
+
+  # cAdvisor (Container metrics)
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+    scrape_interval: 15s
+    metrics_path: /metrics
+
+  # AlertManager
+  - job_name: 'alertmanager'
+    static_configs:
+      - targets: ['alertmanager:9093']
+    scrape_interval: 30s
+    metrics_path: /metrics
+
+  # NGINX Status
+  - job_name: 'nginx'
+    static_configs:
+      - targets: ['nginx:8081']
+    scrape_interval: 30s
+    metrics_path: /nginx_status
+
+  # Loki
+  - job_name: 'loki'
+    static_configs:
+      - targets: ['loki:3100']
+    scrape_interval: 30s
+    metrics_path: /metrics
+
+  # Grafana
+  - job_name: 'grafana'
+    static_configs:
+      - targets: ['grafana:3000']
+    scrape_interval: 30s
+    metrics_path: /metrics
+
+# Alerting configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - "alertmanager:9093"
+      path_prefix: "/"
+      scheme: "http"
+
+# Storage configuration is handled via command line arguments in docker-compose
+# --storage.tsdb.path=/prometheus
+# --storage.tsdb.retention.time=200h
+# --storage.tsdb.retention.size=50GB
+
+# Remote write configuration (optional)
+# remote_write:
+#   - url: "http://remote-storage:8080/api/v1/write"
+
+# Remote read configuration (optional)  
+# remote_read:
+#   - url: "http://remote-storage:8080/api/v1/read" 

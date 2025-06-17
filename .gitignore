@@ -1,0 +1,230 @@
+# =============================================================================
+# Matrixon Matrix NextServer - Git Ignore Rules
+# =============================================================================
+
+# Build artifacts
+/target/
+**/target/
+archives/*/target/
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Rust specific
+Cargo.lock
+*.pdb
+
+# Database files
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+matrixon.db/
+postgresql:/
+:memory:/
+
+# Logs and temporary files
+*.log
+**/logs/
+**/log/
+*.tmp
+*.pid
+*.lock
+debug.log
+matrixon.log
+
+# OS specific
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor specific
+.vscode/settings.json
+.vscode/launch.json
+.vscode/tasks.json
+.idea/
+*.swp
+*.swo
+*~
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.env
+
+# Test artifacts
+test_results/
+room_test_results/
+quick_test_results/
+database_test_results/
+*.bak
+*.backup
+
+# Media storage
+media_storage/
+uploads/
+
+# Configuration secrets
+*secret*
+*password*
+*.key
+*.pem
+
+# Development files
+.cargo/config
+.rustfmt.toml
+clippy.toml
+
+# Documentation build
+book/
+mdbook/
+
+# Performance profiling
+*.prof
+perf.data*
+flamegraph.svg
+
+# Coverage reports
+tarpaulin-report.html
+cobertura.xml
+lcov.info
+
+# Temporary directories
+tmp/
+temp/
+cache/
+
+# CMake
+cmake-build-*/
+
+# IntelliJ
+.idea/
+out/
+*.iml
+modules.xml
+*.ipr
+
+# mpeltonen/sbt-idea plugin
+.idea_modules/
+
+# temporary files which can be created if a process still has a handle open of a deleted file
+.fuse_hidden*
+
+# KDE directory preferences
+.directory
+
+# Linux trash folder which might appear on any partition or disk
+.Trash-*
+
+# .nfs files are created when an open file is removed but is still being accessed
+.nfs*
+
+### vscode ###
+.vscode/*
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+### Windows ###
+# Windows thumbnail cache files
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+
+# Dump file
+*.stackdump
+
+# Folder config file
+[Dd]esktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# Windows shortcuts
+*.lnk
+
+# Matrixon
+matrixon.toml
+
+# Etc.
+**/*.rs.bk
+cached_target
+
+# Nix artifacts
+/result*
+
+# Direnv cache
+/.direnv
+
+# Gitlab CI cache
+/.gitlab-ci.d
+
+# mdbook output
+public/
+
+# Build artifacts and temporary files
+target/
+**/target/
+archives/*/target/
+*.rlib
+*.rmeta
+*.d
+simple_matrixon
+standalone_test
+
+# Compiled binaries
+/bin/
+!/bin/complement
+!/bin/nix-build-and-cache
+
+# OS specific files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Log files
+*.log
+**/logs/
+**/log/
+
+# Backup files
+*.bak
+*.backup
+
+# Test artifacts
+*.tmp
+test-*
+!test-config.toml
+!tests/
+
+# SSL certificates (keep examples)
+ssl/*.key
+ssl/*.pem
+!ssl/*.crt
+
+# Archives of build files
+archives/simple_build/
+archives/standalone_test/

@@ -1,0 +1,204 @@
+# Enterprise Rate Limiting Configuration for matrixon Matrix Server
+# Optimized for 20k+ concurrent users with <50ms latency
+# Based on Synapse rate limiting best practices
+
+# Global rate limiting switch
+enabled = true
+
+# Message sending rate limits - balanced for active communities
+[rc_message]
+burst_count = 20                 # Allow 20 message burst for quick conversations
+enabled = true
+max_penalty_duration_ms = 300000 # Max 5 minute penalty
+min_interval_ms = 100            # Minimum 100ms between messages (anti-spam)
+per_second = 0.5                 # Allow 0.5 messages per second sustained
+
+# Registration rate limits - prevent mass registrations
+[rc_registration]
+burst_count = 2                   # Only 2 registrations in burst
+enabled = true
+max_penalty_duration_ms = 7200000 # 2 hour penalty for violations
+min_interval_ms = 10000           # Minimum 10 seconds between registrations
+per_second = 0.1                  # Very conservative registration rate
+
+# Login rate limits - protect against brute force
+[rc_login]
+[rc_login.address]
+burst_count = 3                   # 3 attempts before rate limiting kicks in
+enabled = true
+max_penalty_duration_ms = 3600000 # 1 hour penalty
+min_interval_ms = 5000            # 5 second minimum between attempts
+per_second = 0.01                 # Very strict per-IP login rate
+
+[rc_login.account]
+burst_count = 5                   # 5 attempts for legitimate users
+enabled = true
+max_penalty_duration_ms = 1800000 # 30 minute penalty
+per_second = 0.01                 # Strict per-account login rate
+
+[rc_login.failed_attempts]
+burst_count = 2                    # Only 2 failed attempts before limiting
+enabled = true
+max_penalty_duration_ms = 86400000 # 24 hour penalty
+min_interval_ms = 2000
+per_second = 0.05                  # Even stricter for failed attempts
+
+[rc_login.lockout]
+duration_multiplier = 2.0      # Double lockout time each violation
+enabled = true
+initial_duration_seconds = 900 # 15 minute initial lockout
+max_attempts = 5               # Lock account after 5 failed attempts
+max_duration_seconds = 86400   # 24 hour max lockout
+
+# Room join rate limits - prevent mass joining attacks
+[rc_joins]
+[rc_joins.local]
+burst_count = 15                 # Allow joining multiple rooms quickly
+enabled = true
+max_penalty_duration_ms = 600000 # 10 minute penalty
+per_second = 0.2                 # Moderate rate for local rooms
+
+[rc_joins.remote]
+burst_count = 8                   # Smaller burst for remote joins
+enabled = true
+max_penalty_duration_ms = 3600000 # 1 hour penalty
+min_interval_ms = 5000            # 5 second minimum for remote joins
+per_second = 0.05                 # Much stricter for remote rooms (expensive)
+
+[rc_joins.per_room]
+burst_count = 25                  # Big burst for popular rooms
+enabled = true
+max_penalty_duration_ms = 1800000 # 30 minute penalty
+per_second = 2.0                  # Allow multiple users to join same room
+
+large_room_threshold = 1000 # Rooms with 1000+ members get special treatment
+[rc_joins.large_room_limits]
+burst_count = 10                  # Smaller burst for large rooms
+enabled = true
+max_penalty_duration_ms = 3600000
+min_interval_ms = 3000
+per_second = 1.0                  # Stricter limits for large rooms
+
+# Invite rate limits - prevent spam invitations
+[rc_invites]
+[rc_invites.per_room]
+burst_count = 15                  # Allow inviting multiple users
+enabled = true
+max_penalty_duration_ms = 1800000
+per_second = 0.5                  # Moderate room invite rate
+
+[rc_invites.per_user]
+burst_count = 5                   # Small burst for legitimate invites
+enabled = true
+max_penalty_duration_ms = 3600000
+per_second = 0.01                 # Very strict per-user invite rate
+
+[rc_invites.per_issuer]
+burst_count = 10                  # Reasonable burst for inviting friends
+enabled = true
+max_penalty_duration_ms = 1800000
+per_second = 1.0                  # Allow users to send multiple invites
+
+[rc_invites.bulk_invite]
+enabled = true
+max_invites_per_request = 25 # Reasonable bulk invite limit
+[rc_invites.bulk_invite.rate_limit]
+burst_count = 2                   # Only 2 bulk operations
+enabled = true
+max_penalty_duration_ms = 7200000 # 2 hour penalty
+per_second = 0.05                 # Very strict bulk invite rate
+
+# Admin redaction limits - balance power with responsibility
+[rc_admin_redaction]
+burst_count = 50                 # Large burst for cleaning up spam
+enabled = true
+max_penalty_duration_ms = 600000 # 10 minute penalty
+per_second = 2.0                 # Allow admins to redact quickly when needed
+
+# 3PID validation limits - prevent email/SMS spam
+[rc_3pid_validation]
+burst_count = 3                   # Small burst for legitimate use
+enabled = true
+max_penalty_duration_ms = 7200000 # 2 hour penalty
+min_interval_ms = 60000           # 1 minute minimum between validations
+per_second = 0.005                # Very strict validation rate
+
+# Media creation limits - balance usability with resource protection
+[rc_media_create]
+burst_count = 25                  # Good burst for sharing multiple images
+enabled = true
+max_penalty_duration_ms = 1800000 # 30 minute penalty
+per_second = 5.0                  # Allow uploading multiple files
+
+# Federation rate limits - protect against malicious servers
+[rc_federation]
+concurrent_limit = 5          # Maximum 5 concurrent requests per server
+reject_limit = 100            # Hard reject after 100 requests
+sleep_delay_ms = 250          # 250ms delay when over sleep limit
+sleep_limit = 20              # Start slowing down after 20 requests
+strict_unknown_servers = true # Apply stricter limits to unknown servers
+window_size_ms = 1000         # 1 second window
+
+# Per-server custom limits (examples)
+[rc_federation.per_server_limits]
+["matrix.org"]
+concurrent_limit = 10 # Higher limit for trusted servers
+reject_limit = 200
+trusted = true
+
+["suspicious-server.com"]
+concurrent_limit = 1 # Very strict for suspicious servers
+reject_limit = 10
+trusted = false
+
+# Rate limiting exemptions
+[exemptions]
+admin_multiplier = 10.0 # Admins get 10x higher limits
+exempt_appservices = false # Application services follow normal limits
+exempt_ip_ranges = [
+    "10.0.0.0/8",     # Private network ranges
+    "172.16.0.0/12",
+    "192.168.0.0/16",
+]
+exempt_ips = [
+    "127.0.0.1", # Localhost
+    "::1",       # IPv6 localhost
+]
+exempt_server_admins = true # Server admins are completely exempt
+exempt_servers = [
+    "matrix.org",  # Trusted servers
+    "mozilla.org",
+]
+exempt_users = ["@admin:matrixon.rs", "@monitoring:matrixon.rs"]
+
+# Advanced configuration
+[advanced]
+adaptive_limiting = true        # Enable adaptive rate limiting based on load
+cleanup_interval_seconds = 1800 # Clean up expired state every 30 minutes
+enable_metrics = true           # Enable rate limiting metrics
+load_penalty_multiplier = 0.3   # Reduce limits to 30% under high load
+load_threshold = 0.85           # Apply penalties when server load > 85%
+log_violations = true           # Log all rate limiting violations
+max_violation_logs = 50000      # Keep up to 50k violation logs
+persist_state = true            # Persist rate limiting state across restarts
+state_expiry_seconds = 172800   # Keep state for 48 hours after last activity
+
+# Algorithm configuration
+[advanced.algorithms]
+burst_algorithm = "SlidingWindow" # Algorithm for burst detection
+enable_burst_detection = true     # Enable secondary burst detection
+primary_algorithm = "TokenBucket" # Primary rate limiting algorithm
+
+# Custom algorithm parameters
+[advanced.algorithms.custom_parameters]
+burst_detection_sensitivity = 0.8 # Sensitivity for burst detection
+sliding_window_segments = 10      # Number of segments in sliding window
+token_bucket_precision = 1000.0   # Higher precision for token bucket
+
+# High-performance specific settings
+[advanced.custom_parameters]
+background_cleanup_workers = 4    # Number of background cleanup workers 
+cleanup_batch_size = 10000        # Process cleanup in batches of 10k
+hot_cache_size = 100000           # Keep 100k most active states in hot cache
+memory_pool_size = 1000000        # Pre-allocate memory for 1M rate limit states
+metrics_collection_interval = 5.0 # Collect metrics every 5 seconds

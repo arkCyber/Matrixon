@@ -1,0 +1,58 @@
+# =============================================================================
+# Matrixon Matrix Server - Local Build Docker Image
+# =============================================================================
+#
+# Project: Matrixon - Ultra High Performance Matrix NextServer
+# Author: arkSong (arksong2018@gmail.com)
+# Date: 2024-12-19
+# Version: 0.11.0-alpha
+#
+# Description:
+#   Simplified Docker image using pre-built local binary
+#
+# =============================================================================
+
+FROM ubuntu:22.04
+
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y \
+    ca-certificates \
+    curl \
+    openssl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create non-root user
+RUN useradd -ms /bin/bash matrixon
+
+# Set working directory
+WORKDIR /app
+
+# Copy pre-built binary (build locally first)
+COPY target/release/matrixon /usr/local/bin/matrixon
+
+# Create necessary directories
+RUN mkdir -p /app/config /app/logs /app/media /app/data && \
+    chown -R matrixon:matrixon /app
+
+# Copy configuration files
+COPY config/ /app/config/
+
+# Set permissions
+RUN chmod +x /usr/local/bin/matrixon
+
+# Switch to non-root user
+USER matrixon
+
+# Expose ports
+EXPOSE 6167
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost:6167/health || exit 1
+
+# Environment variables
+ENV RUST_LOG=info
+ENV MATRIXON_CONFIG_PATH=/app/config/matrixon.toml
+
+# Start the server
+CMD ["/usr/local/bin/matrixon"] 

@@ -1,0 +1,109 @@
+# Matrixon Matrix Server - Simplified AlertManager Configuration
+# Author: arkSong (arksong2018@gmail.com)
+# Date: 2024-12-19
+# Version: 2.0
+# Purpose: Simplified alert routing with verified dependencies
+
+global:
+  smtp_smarthost: 'localhost:587'
+  smtp_from: 'alerts@matrixon.com'
+  smtp_auth_username: 'alerts@matrixon.com'
+  smtp_auth_password: 'your_email_password'
+  smtp_require_tls: true
+
+# Simple alert routing
+route:
+  group_by: ['alertname']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 1h
+  receiver: 'default'
+  routes:
+    # Critical alerts
+    - match:
+        severity: critical
+      receiver: 'critical'
+      group_wait: 0s
+      repeat_interval: 5m
+
+    # Database alerts
+    - match_re:
+        service: ^(postgres|redis)$
+      receiver: 'database'
+      group_wait: 30s
+      repeat_interval: 30m
+
+    # System alerts
+    - match:
+        service: system
+      receiver: 'system'
+      group_wait: 1m
+      repeat_interval: 1h
+
+# Alert receivers
+receivers:
+  - name: 'default'
+    email_configs:
+      - to: 'admin@matrixon.com'
+        subject: 'Matrixon Alert: {{ .GroupLabels.alertname }}'
+        body: |
+          Alert: {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}
+          Description: {{ range .Alerts }}{{ .Annotations.description }}{{ end }}
+          Time: {{ range .Alerts }}{{ .StartsAt }}{{ end }}
+
+  - name: 'critical'
+    email_configs:
+      - to: 'admin@matrixon.com'
+        subject: '🚨 CRITICAL: {{ .GroupLabels.alertname }}'
+        body: |
+          🚨 CRITICAL ALERT 🚨
+          
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          Service: {{ .Labels.service }}
+          Started: {{ .StartsAt }}
+          {{ end }}
+        headers:
+          Priority: 'urgent'
+    webhook_configs:
+      - url: 'http://localhost:9999/webhook'
+        send_resolved: true
+        title: '🚨 Critical Alert'
+        text: '{{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+
+  - name: 'database'
+    email_configs:
+      - to: 'dba@matrixon.com'
+        subject: '🗄️ Database Alert: {{ .GroupLabels.alertname }}'
+        body: |
+          🗄️ DATABASE ALERT
+          
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          Service: {{ .Labels.service }}
+          Started: {{ .StartsAt }}
+          {{ end }}
+
+  - name: 'system'
+    email_configs:
+      - to: 'sysadmin@matrixon.com'
+        subject: '🖥️ System Alert: {{ .GroupLabels.alertname }}'
+        body: |
+          🖥️ SYSTEM ALERT
+          
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          Instance: {{ .Labels.instance }}
+          Started: {{ .StartsAt }}
+          {{ end }}
+
+# Inhibit rules - prevent spam
+inhibit_rules:
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'instance'] 

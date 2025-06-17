@@ -1,0 +1,17 @@
+[package]
+name = "standalone_matrix_server"
+version = "0.11.0"
+edition = "2021"
+authors = ["arkSong <arksong2018@gmail.com>"]
+
+[[bin]]
+name = "standalone_matrix_server"
+path = "standalone_matrix_server.rs"
+
+[dependencies]
+axum = "0.7"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio = { version = "1.0", features = ["full"] }
+tracing = "0.1"
+tracing-subscriber = "0.3" 

@@ -1,0 +1,72 @@
+# Matrixon Matrix Server - Filebeat Audit Configuration
+# Author: arkSong (arksong2018@gmail.com)
+# Date: 2024-12-19
+# Version: 1.0
+# Purpose: Ship audit logs from various sources to Logstash
+
+filebeat.inputs:
+- type: log
+  enabled: true
+  paths:
+    - /var/log/postgresql/*.log
+    - /var/log/postgresql/*.csv
+  fields:
+    log_type: postgresql
+  fields_under_root: true
+  multiline.pattern: '^\d{4}-\d{2}-\d{2}'
+  multiline.negate: true
+  multiline.match: after
+  
+- type: log
+  enabled: true
+  paths:
+    - /var/log/nginx/access.log
+  fields:
+    log_type: nginx_access
+  fields_under_root: true
+  
+- type: log
+  enabled: true
+  paths:
+    - /var/log/nginx/error.log
+  fields:
+    log_type: nginx_error
+  fields_under_root: true
+  
+- type: log
+  enabled: true
+  paths:
+    - /var/log/matrixon/*.log
+  fields:
+    log_type: application
+  fields_under_root: true
+  
+- type: docker
+  enabled: true
+  containers.ids:
+    - "*"
+  fields:
+    log_type: container
+  fields_under_root: true
+  
+output.logstash:
+  hosts: ["logstash:5044"]
+  
+processors:
+- add_host_metadata:
+    when.not.contains.tags: forwarded
+- add_docker_metadata: ~
+- timestamp:
+    field: "@timestamp"
+    layouts:
+      - '2006-01-02T15:04:05.000Z'
+    test:
+      - '2023-12-19T10:30:45.123Z'
+      
+logging.level: info
+logging.to_files: true
+logging.files:
+  path: /var/log/filebeat
+  name: filebeat
+  keepfiles: 7
+  permissions: 0600 

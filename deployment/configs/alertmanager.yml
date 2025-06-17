@@ -1,0 +1,65 @@
+# AlertManager Configuration for Matrixon Matrix Server
+# Author: arkSong (arksong2018@gmail.com)
+# Date: 2024-12-19
+# Version: 1.0
+# Purpose: Alert routing and notification configuration
+
+global:
+  smtp_smarthost: 'localhost:587'
+  smtp_from: 'alerts@matrixon.localhost'
+  smtp_auth_username: 'alerts@matrixon.localhost'
+  smtp_auth_password: 'change_me'
+
+route:
+  group_by: ['alertname']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 1h
+  receiver: 'web.hook'
+  routes:
+  - match:
+      severity: critical
+    receiver: 'critical-alerts'
+  - match:
+      severity: warning
+    receiver: 'warning-alerts'
+
+receivers:
+- name: 'web.hook'
+  webhook_configs:
+  - url: 'http://127.0.0.1:5001/'
+
+- name: 'critical-alerts'
+  email_configs:
+  - to: 'admin@matrixon.localhost'
+    subject: 'CRITICAL: Matrixon Alert - {{ .GroupLabels.alertname }}'
+    body: |
+      Alert: {{ .GroupLabels.alertname }}
+      Instance: {{ .CommonLabels.instance }}
+      Severity: {{ .CommonLabels.severity }}
+      Summary: {{ .CommonAnnotations.summary }}
+      Description: {{ .CommonAnnotations.description }}
+      
+      Time: {{ .CommonLabels.timestamp }}
+  webhook_configs:
+  - url: 'http://127.0.0.1:5001/critical'
+
+- name: 'warning-alerts'
+  email_configs:
+  - to: 'monitoring@matrixon.localhost'
+    subject: 'WARNING: Matrixon Alert - {{ .GroupLabels.alertname }}'
+    body: |
+      Alert: {{ .GroupLabels.alertname }}
+      Instance: {{ .CommonLabels.instance }}
+      Severity: {{ .CommonLabels.severity }}
+      Summary: {{ .CommonAnnotations.summary }}
+      Description: {{ .CommonAnnotations.description }}
+      
+      Time: {{ .CommonLabels.timestamp }}
+
+inhibit_rules:
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'dev', 'instance'] 

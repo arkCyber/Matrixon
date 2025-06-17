@@ -1,0 +1,116 @@
+# Promtail Configuration for Matrixon Matrix Server
+# Author: arkSong (arksong2018@gmail.com)
+# Date: 2024-12-19
+# Version: 1.0
+# Purpose: Log collection and forwarding to Loki
+
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  # PostgreSQL logs
+  - job_name: postgresql
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: postgresql
+          service: postgres
+          __path__: /var/log/postgresql/*.log
+    pipeline_stages:
+      - regex:
+          expression: '^(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3} \w+) \[(?P<pid>\d+)\]: \[(?P<level>\w+)\]  (?P<message>.*)'
+      - labels:
+          level:
+          pid:
+      - timestamp:
+          source: timestamp
+          format: '2006-01-02 15:04:05.000 MST'
+
+  # Redis logs
+  - job_name: redis
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: redis
+          service: redis
+          __path__: /var/log/redis/*.log
+    pipeline_stages:
+      - regex:
+          expression: '^(?P<pid>\d+):(?P<role>\w+) (?P<timestamp>\d{2} \w{3} \d{4} \d{2}:\d{2}:\d{2}\.\d{3}) (?P<level>[\*\.\-\#]) (?P<message>.*)'
+      - labels:
+          level:
+          pid:
+          role:
+      - timestamp:
+          source: timestamp
+          format: '02 Jan 2006 15:04:05.000'
+
+  # System logs
+  - job_name: syslog
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: syslog
+          service: system
+          __path__: /var/log/syslog
+    pipeline_stages:
+      - regex:
+          expression: '^(?P<timestamp>\w{3} \d{1,2} \d{2}:\d{2}:\d{2}) (?P<host>\S+) (?P<process>\S+): (?P<message>.*)'
+      - labels:
+          host:
+          process:
+      - timestamp:
+          source: timestamp
+          format: 'Jan 2 15:04:05'
+
+  # Docker container logs
+  - job_name: docker
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: docker
+          service: docker
+          __path__: /var/log/docker/*.log
+    pipeline_stages:
+      - json:
+          expressions:
+            timestamp: time
+            level: level
+            message: msg
+            container: attrs.tag
+      - labels:
+          level:
+          container:
+      - timestamp:
+          source: timestamp
+          format: RFC3339Nano
+
+  # Matrixon application logs (future)
+  - job_name: matrixon
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: matrixon
+          service: matrixon
+          __path__: /var/log/matrixon/*.log
+    pipeline_stages:
+      - regex:
+          expression: '^(?P<timestamp>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z)\s+(?P<level>\w+)\s+(?P<target>\S+):\s+(?P<message>.*)'
+      - labels:
+          level:
+          target:
+      - timestamp:
+          source: timestamp
+          format: RFC3339Nano 

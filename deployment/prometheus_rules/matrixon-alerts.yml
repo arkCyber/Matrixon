@@ -1,0 +1,378 @@
+# Matrixon Matrix Server - Enhanced Alerting Rules
+# Author: arkSong (arksong2018@gmail.com)
+# Date: 2024-12-19
+# Version: 2.0
+# Purpose: Comprehensive alerting rules for critical thresholds and resource monitoring
+
+groups:
+  # Critical Database Alerts
+  - name: database_critical
+    rules:
+      - alert: PostgreSQLDown
+        expr: pg_up == 0
+        for: 30s
+        labels:
+          severity: critical
+          service: postgres
+          category: availability
+        annotations:
+          summary: "🚨 PostgreSQL database is DOWN"
+          description: "PostgreSQL database has been unreachable for more than 30 seconds. This will cause complete service disruption."
+          impact: "Complete service outage"
+          action: "Check database container, restart PostgreSQL service"
+
+      - alert: PostgreSQLConnectionPoolExhausted
+        expr: pg_stat_activity_count >= 190
+        for: 1m
+        labels:
+          severity: critical
+          service: postgres
+          category: capacity
+        annotations:
+          summary: "🚨 PostgreSQL connection pool nearly exhausted"
+          description: "Active connections: {{ $value }}/200. System is at risk of refusing new connections."
+          impact: "New connections will be rejected"
+          action: "Scale database resources or optimize connection usage"
+
+      - alert: PostgreSQLHighConnections
+        expr: pg_stat_activity_count > 150
+        for: 3m
+        labels:
+          severity: warning
+          service: postgres
+          category: capacity
+        annotations:
+          summary: "⚠️ PostgreSQL high connection usage"
+          description: "Active connections: {{ $value }}/200. Monitor for potential capacity issues."
+          impact: "Reduced performance, potential connection rejections"
+          action: "Monitor connection patterns, consider connection pooling"
+
+      - alert: PostgreSQLSlowQueries
+        expr: rate(pg_stat_activity_max_tx_duration[5m]) > 30
+        for: 2m
+        labels:
+          severity: warning
+          service: postgres
+          category: performance
+        annotations:
+          summary: "⚠️ PostgreSQL slow queries detected"
+          description: "Long-running queries detected with average duration > 30 seconds"
+          impact: "Degraded application performance"
+          action: "Review slow query log, optimize problematic queries"
+
+      - alert: RedisDown
+        expr: redis_up == 0
+        for: 30s
+        labels:
+          severity: critical
+          service: redis
+          category: availability
+        annotations:
+          summary: "🚨 Redis cache is DOWN"
+          description: "Redis cache server has been unreachable for more than 30 seconds"
+          impact: "Cache misses, degraded performance"
+          action: "Check Redis container, restart Redis service"
+
+      - alert: RedisMemoryCritical
+        expr: (redis_memory_used_bytes / redis_config_maxmemory) > 0.95
+        for: 2m
+        labels:
+          severity: critical
+          service: redis
+          category: capacity
+        annotations:
+          summary: "🚨 Redis memory critically high"
+          description: "Redis memory usage: {{ $value | humanizePercentage }}. Risk of OOM."
+          impact: "Potential cache eviction, service instability"
+          action: "Increase Redis memory limit or clear unnecessary data"
+
+  # System Resource Alerts
+  - name: system_resources
+    rules:
+      - alert: SystemCPUCritical
+        expr: 100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 90
+        for: 3m
+        labels:
+          severity: critical
+          service: system
+          category: performance
+        annotations:
+          summary: "🚨 Critical CPU usage"
+          description: "CPU usage: {{ $value | humanizePercentage }} on {{ $labels.instance }}"
+          impact: "Severe performance degradation"
+          action: "Scale system resources, investigate high CPU processes"
+
+      - alert: SystemCPUHigh
+        expr: 100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+          service: system
+          category: performance
+        annotations:
+          summary: "⚠️ High CPU usage"
+          description: "CPU usage: {{ $value | humanizePercentage }} on {{ $labels.instance }}"
+          impact: "Degraded performance"
+          action: "Monitor CPU usage patterns, consider scaling"
+
+      - alert: SystemMemoryCritical
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) > 0.95
+        for: 2m
+        labels:
+          severity: critical
+          service: system
+          category: performance
+        annotations:
+          summary: "🚨 Critical memory usage"
+          description: "Memory usage: {{ $value | humanizePercentage }} on {{ $labels.instance }}"
+          impact: "Risk of OOM killer, system instability"
+          action: "Scale memory resources immediately"
+
+      - alert: SystemMemoryHigh
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) > 0.85
+        for: 5m
+        labels:
+          severity: warning
+          service: system
+          category: performance
+        annotations:
+          summary: "⚠️ High memory usage"
+          description: "Memory usage: {{ $value | humanizePercentage }} on {{ $labels.instance }}"
+          impact: "Potential performance issues"
+          action: "Monitor memory usage, consider optimization"
+
+      - alert: DiskSpaceCritical
+        expr: (1 - (node_filesystem_avail_bytes{fstype!="tmpfs"} / node_filesystem_size_bytes{fstype!="tmpfs"})) > 0.95
+        for: 1m
+        labels:
+          severity: critical
+          service: system
+          category: capacity
+        annotations:
+          summary: "🚨 Critical disk space"
+          description: "Disk usage: {{ $value | humanizePercentage }} on {{ $labels.mountpoint }}"
+          impact: "Risk of service failure, data loss"
+          action: "Free disk space immediately or expand storage"
+
+      - alert: DiskSpaceHigh
+        expr: (1 - (node_filesystem_avail_bytes{fstype!="tmpfs"} / node_filesystem_size_bytes{fstype!="tmpfs"})) > 0.85
+        for: 5m
+        labels:
+          severity: warning
+          service: system
+          category: capacity
+        annotations:
+          summary: "⚠️ High disk usage"
+          description: "Disk usage: {{ $value | humanizePercentage }} on {{ $labels.mountpoint }}"
+          impact: "Potential capacity issues"
+          action: "Plan disk cleanup or expansion"
+
+  # Application Performance Alerts
+  - name: matrixon_application
+    rules:
+      - alert: MatrixonDown
+        expr: up{job="matrixon-server"} == 0
+        for: 30s
+        labels:
+          severity: critical
+          service: matrixon
+          category: availability
+        annotations:
+          summary: "🚨 Matrixon server is DOWN"
+          description: "Matrixon Matrix server has been unreachable for more than 30 seconds"
+          impact: "Complete Matrix service outage"
+          action: "Check Matrixon service, restart application"
+
+      - alert: MatrixonHighLatency
+        expr: histogram_quantile(0.95, rate(matrixon_http_request_duration_seconds_bucket[5m])) > 2
+        for: 5m
+        labels:
+          severity: critical
+          service: matrixon
+          category: performance
+        annotations:
+          summary: "🚨 Matrixon high response latency"
+          description: "95th percentile latency: {{ $value }}s (threshold: 2s)"
+          impact: "Poor user experience, potential timeouts"
+          action: "Investigate performance bottlenecks, optimize queries"
+
+      - alert: MatrixonModerateLatency
+        expr: histogram_quantile(0.95, rate(matrixon_http_request_duration_seconds_bucket[5m])) > 1
+        for: 3m
+        labels:
+          severity: warning
+          service: matrixon
+          category: performance
+        annotations:
+          summary: "⚠️ Matrixon elevated response latency"
+          description: "95th percentile latency: {{ $value }}s (threshold: 1s)"
+          impact: "Degraded user experience"
+          action: "Monitor performance trends"
+
+      - alert: MatrixonHighErrorRate
+        expr: rate(matrixon_http_requests_total{status=~"5.."}[5m]) / rate(matrixon_http_requests_total[5m]) > 0.10
+        for: 5m
+        labels:
+          severity: critical
+          service: matrixon
+          category: reliability
+        annotations:
+          summary: "🚨 Matrixon high error rate"
+          description: "Error rate: {{ $value | humanizePercentage }} (threshold: 10%)"
+          impact: "Service reliability issues"
+          action: "Check application logs, investigate errors"
+          runbook: "https://matrixon.org/docs/runbooks/high-error-rate"
+
+      - alert: MatrixonModeratErrorRate
+        expr: rate(matrixon_http_requests_total{status=~"5.."}[5m]) / rate(matrixon_http_requests_total[5m]) > 0.05
+        for: 3m
+        labels:
+          severity: warning
+          service: matrixon
+          category: reliability
+        annotations:
+          summary: "⚠️ Matrixon elevated error rate"
+          description: "Error rate: {{ $value | humanizePercentage }} (threshold: 5%)"
+          impact: "Potential reliability issues"
+          action: "Monitor error trends"
+          runbook: "https://matrixon.org/docs/runbooks/moderate-error-rate"
+
+      - alert: MatrixonCriticalErrorRate
+        expr: rate(matrixon_http_requests_total{status=~"5.."}[1m]) / rate(matrixon_http_requests_total[1m]) > 0.20
+        for: 1m
+        labels:
+          severity: critical
+          service: matrixon
+          category: reliability
+        annotations:
+          summary: "🔥 Matrixon critical error rate"
+          description: "Error rate: {{ $value | humanizePercentage }} (threshold: 20%)"
+          impact: "Severe service degradation"
+          action: "Immediate investigation required"
+          runbook: "https://matrixon.org/docs/runbooks/critical-error-rate"
+
+  # Connection Pool Monitoring
+  - name: connection_pools
+    rules:
+      - alert: DatabaseConnectionPoolHigh
+        expr: matrixon_db_connections_active > 160
+        for: 3m
+        labels:
+          severity: warning
+          service: matrixon
+          category: capacity
+        annotations:
+          summary: "⚠️ Database connection pool usage high"
+          description: "Active DB connections: {{ $value }}/200"
+          impact: "Potential connection exhaustion"
+          action: "Monitor connection patterns, optimize pool usage"
+
+      - alert: RedisConnectionsHigh
+        expr: redis_connected_clients > 800
+        for: 3m
+        labels:
+          severity: warning
+          service: redis
+          category: capacity
+        annotations:
+          summary: "⚠️ Redis connection count high"
+          description: "Redis connected clients: {{ $value }} (threshold: 800)"
+          impact: "Potential connection limits"
+          action: "Monitor connection usage patterns"
+
+      - alert: AuthTokensHigh
+        expr: matrixon_auth_tokens_active > 50000
+        for: 5m
+        labels:
+          severity: warning
+          service: matrixon
+          category: capacity
+        annotations:
+          summary: "⚠️ High number of active auth tokens"
+          description: "Active auth tokens: {{ $value }} (threshold: 50,000)"
+          impact: "Potential memory usage issues"
+          action: "Review token cleanup policies"
+
+  # Federation Monitoring
+  - name: federation
+    rules:
+      - alert: FederationHighLag
+        expr: histogram_quantile(0.95, rate(matrixon_federation_lag_seconds_bucket[10m])) > 60
+        for: 5m
+        labels:
+          severity: critical
+          service: matrixon
+          category: federation
+        annotations:
+          summary: "🚨 High federation lag"
+          description: "95th percentile federation lag: {{ $value }}s (threshold: 60s)"
+          impact: "Poor federation experience"
+          action: "Check federation connectivity and performance"
+
+      - alert: FederationModerateLag
+        expr: histogram_quantile(0.95, rate(matrixon_federation_lag_seconds_bucket[10m])) > 30
+        for: 3m
+        labels:
+          severity: warning
+          service: matrixon
+          category: federation
+        annotations:
+          summary: "⚠️ Elevated federation lag"
+          description: "95th percentile federation lag: {{ $value }}s (threshold: 30s)"
+          impact: "Degraded federation performance"
+          action: "Monitor federation performance"
+
+      - alert: FederationErrors
+        expr: rate(matrixon_matrix_federation_events_total{status="error"}[5m]) > 2
+        for: 3m
+        labels:
+          severity: warning
+          service: matrixon
+          category: federation
+        annotations:
+          summary: "⚠️ Federation errors detected"
+          description: "Federation error rate: {{ $value }} errors/sec (threshold: 2/sec)"
+          impact: "Federation reliability issues"
+          action: "Check federation logs and connectivity"
+
+  # Container Health
+  - name: container_health
+    rules:
+      - alert: ContainerDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: docker
+          category: availability
+        annotations:
+          summary: "🚨 Container is down"
+          description: "{{ $labels.job }} container has been down for more than 1 minute"
+          impact: "Service component unavailable"
+          action: "Check container status and logs"
+
+      - alert: ContainerHighCPU
+        expr: rate(container_cpu_usage_seconds_total{name!=""}[5m]) * 100 > 90
+        for: 5m
+        labels:
+          severity: warning
+          service: docker
+          category: performance
+        annotations:
+          summary: "⚠️ Container high CPU usage"
+          description: "Container {{ $labels.name }} CPU usage: {{ $value | humanizePercentage }}"
+          impact: "Container performance issues"
+          action: "Check container resource allocation"
+
+      - alert: ContainerHighMemory
+        expr: (container_memory_usage_bytes{name!=""} / container_spec_memory_limit_bytes{name!=""}) > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          service: docker
+          category: performance
+        annotations:
+          summary: "⚠️ Container high memory usage"
+          description: "Container {{ $labels.name }} memory usage: {{ $value | humanizePercentage }}"
+          impact: "Risk of OOM kill"
+          action: "Check container memory allocation" 

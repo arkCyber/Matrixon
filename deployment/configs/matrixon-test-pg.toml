@@ -1,0 +1,18 @@
+[global]
+# Test PostgreSQL Configuration for matrixon Matrix Server
+address = "127.0.0.1"
+allow_federation = false
+allow_registration = true
+database_backend = "postgresql"
+database_path = "postgresql://postgres@localhost:5432/matrixon_test"
+db_cache_capacity_mb = 512.0
+enable_lightning_bolt = false
+log = "info"
+max_concurrent_requests = 500
+max_request_size = 20_000_000
+port = 6167
+server_name = "localhost"
+trusted_servers = []
+
+[global.well_known]
+client = "http://localhost:6167"

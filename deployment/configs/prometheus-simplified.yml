@@ -1,0 +1,95 @@
+# Matrixon Matrix Server - Simplified Prometheus Configuration
+# Author: arkSong (arksong2018@gmail.com)
+# Date: 2024-12-19
+# Version: 2.1
+# Purpose: Clean and simplified monitoring configuration for Matrixon services
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'matrixon'
+    environment: 'production'
+
+# Alerting configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+# Load alerting rules
+rule_files:
+  - "/etc/prometheus/alert-rules.yml"
+
+# Scrape configurations
+scrape_configs:
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+    scrape_interval: 30s
+
+  # Database monitoring
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+    scrape_interval: 15s
+
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+    scrape_interval: 15s
+
+  # System monitoring
+  - job_name: 'node'
+    static_configs:
+      - targets: ['node-exporter:9100']
+    scrape_interval: 15s
+
+  - job_name: 'containers'
+    static_configs:
+      - targets: ['cadvisor:8080']
+    scrape_interval: 15s
+
+  # Application monitoring
+  # nginx monitoring disabled due to configuration issues
+  # - job_name: 'nginx'
+  #   static_configs:
+  #     - targets: ['nginx:80']
+  #   metrics_path: '/nginx_status'
+  #   scrape_interval: 15s
+
+  - job_name: 'elasticsearch-exporter'
+    static_configs:
+      - targets: ['elasticsearch-exporter:9114']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+    scrape_timeout: 10s
+
+  # Monitoring stack
+  - job_name: 'alertmanager'
+    static_configs:
+      - targets: ['alertmanager:9093']
+    scrape_interval: 30s
+
+  - job_name: 'grafana'
+    static_configs:
+      - targets: ['grafana:3000']
+    scrape_interval: 30s
+
+  # Matrixon server monitoring
+  - job_name: 'matrixon-server'
+    static_configs:
+      - targets: ['host.docker.internal:6167']
+    metrics_path: '/_matrix/metrics'
+    scrape_interval: 10s
+    scrape_timeout: 5s
+
+  # Alternative Matrixon monitoring endpoint
+  - job_name: 'matrixon-internal'
+    static_configs:
+      - targets: ['host.docker.internal:6167']
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+    scrape_timeout: 5s 

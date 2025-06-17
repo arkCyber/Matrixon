@@ -1,0 +1,44 @@
+[package]
+name = "matrixon-backup"
+version = "0.1.0"
+edition = "2021"
+authors = ["arkSong <arksong2018@gmail.com>"]
+description = "Backup functionality for Matrixon server"
+license = "MIT"
+repository = "https://github.com/element-hq/matrixon"
+
+[dependencies]
+tokio = { version = "1.0", features = ["full"] }
+tracing = "0.1"
+serde = { version = "1.0", features = ["derive"] }
+flate2 = "1.0"
+chrono = "0.4"
+matrixon-common = { path = "../matrixon-common" }
+matrixon-db = { path = "../matrixon-db", optional = true }
+matrixon-core = { path = "../matrixon-core" }
+thiserror = "1.0"
+deadpool-postgres = { version = "0.12", optional = true }
+tokio-postgres = { version = "0.7", optional = true }
+sqlx = { version = "0.7", features = ["postgres"] }
+tempfile = "3.0"
+
+[dev-dependencies]
+tempfile = "3.0"
+tokio = { version = "1.0", features = ["full"] }
+
+[features]
+default = []
+postgres = ["matrixon-db/postgres", "deadpool-postgres", "tokio-postgres"]
+sqlite = ["matrixon-db/sqlite"] 
+testing = ["matrixon-db/testing", "postgres"]
+
+[lib]
+name = "matrixon_backup"
+path = "src/lib.rs"
+test = true
+bench = false
+
+[[test]]
+name = "integration"
+path = "tests/integration.rs"
+required-features = ["testing"]

@@ -1,0 +1,40 @@
+[package]
+name = "matrixon-rooms"
+version = "0.11.0-alpha" 
+edition = "2021"
+authors = ["arkSong <arksong2018@gmail.com>"]
+license = "Apache-2.0/MIT"
+repository = "https://github.com/arksong2018/Matrixon"
+description = "Matrixon Rooms Service - Matrix room management and timeline operations"
+
+[dependencies]
+# Core dependencies
+tokio = { version = "1.36", features = ["full"] }
+tracing = "0.1"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "1.0"
+anyhow = "1.0"
+async-trait = "0.1"
+futures = "0.3"
+
+# Matrix protocol
+ruma = { version = "0.12.3", features = ["compat", "events", "client-api", "federation-api-c", "federation-api-s", "state-res"] }
+ruma-events = "0.28"
+ruma-state-res = "0.13.0"
+
+# Database
+sqlx = { version = "0.7", features = ["runtime-tokio-rustls", "postgres", "chrono", "uuid"] }
+
+# Utilities  
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1.7", features = ["v4", "serde"] }
+lru = "0.12"
+lru-cache = { workspace = true }
+base64 = "0.21"
+futures-util = { workspace = true }
+sha2 = { workspace = true }
+
+# Workspace dependencies
+matrixon-common = { path = "../matrixon-common" }
+matrixon-db = { path = "../matrixon-db" }

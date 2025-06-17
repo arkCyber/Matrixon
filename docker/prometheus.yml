@@ -1,0 +1,88 @@
+# =============================================================================
+# Matrixon Matrix NextServer - Prometheus Configuration
+# =============================================================================
+#
+# Project: Matrixon - Ultra High Performance Matrix NextServer
+# Author: arkSong (arksong2018@gmail.com) - Founder of Matrixon Innovation Project
+# Date: 2024-12-11
+# Version: 0.11.0-alpha
+# License: Apache 2.0 / MIT
+#
+# Description:
+#   Prometheus configuration for monitoring Matrixon Matrix server
+#   and related infrastructure components
+#
+# =============================================================================
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'matrixon-production'
+    environment: 'production'
+
+# Rule files
+rule_files:
+  # - "alerts.yml"
+
+# Scrape configurations
+scrape_configs:
+  # Matrixon Matrix Server
+  - job_name: 'matrixon'
+    static_configs:
+      - targets: ['matrixon:9090']
+    scrape_interval: 10s
+    metrics_path: /metrics
+    honor_labels: true
+    
+    # Custom labels
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: matrixon:9090
+
+  # Nginx metrics (if nginx-prometheus-exporter is used)
+  - job_name: 'nginx'
+    static_configs:
+      - targets: ['nginx-exporter:9113']
+    scrape_interval: 15s
+
+  # Redis metrics
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+    scrape_interval: 15s
+
+  # Node exporter for system metrics
+  - job_name: 'node'
+    static_configs:
+      - targets: ['node-exporter:9100']
+    scrape_interval: 15s
+
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+# Storage configuration is handled by command line flags in docker-compose.yml
+# --storage.tsdb.path=/prometheus
+# --storage.tsdb.retention.time=15d
+# --storage.tsdb.retention.size=50GB
+
+# Remote write configuration (optional)
+# remote_write:
+#   - url: "https://prometheus-remote-write-endpoint/api/v1/write"
+#     basic_auth:
+#       username: "username"
+#       password: "password"
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          # - alertmanager:9093 
+ 

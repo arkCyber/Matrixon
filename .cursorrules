@@ -1,0 +1,162 @@
+# Matrixon Matrix Server - Enterprise Rust Development Rules
+# Goal: Transform into high-performance Matrix NextServer (Synapse alternative)
+# Performance: 200k+ connections, <50ms latency, >99% success rate
+
+Rust version 1.85.0, Ruma version 0.12.3, these versions must not be changed arbitrarily!
+
+https://matrix.org/ is the most important website for this project.
+https://github.com/element-hq/synapse  is stable matrix server, our learning teacher.
+https://github.com/ruma/ruma is base for the system.
+
+遇到代码问题与系统配置问题,必须参考原始项目的处理方法:
+https://github.com/matrix-construct/construct
+
+error fixing:
+cargo check and cargo test, continue to correct until no error.
+
+ 典型库crate结构：
+
+```javascript
+matrixon-federation/
+├── Cargo.toml      # Crate配置和依赖
+├── src/
+│   ├── lib.rs      # 主库入口(必须)
+│   ├── main.rs     # 可选(如果有可执行程序)
+│   └── ...         # 其他模块文件
+├── examples/       # 示例程序(可选)
+│   └── demo.rs     # 使用示例
+├── benches/        # 基准测试(可选)
+│   └── bench.rs    
+└── tests/          # 集成测试(可选)
+    └── integration_test.rs
+```
+
+
+
+I am arkSong (arksong2018@gmail.com), founder of the innovative Matrixon project.
+The project name has been changed to Matrixon, and we aim to maintain consistent naming across all files.
+Each file must include detailed header comments.
+
+## DOCUMENTATION STANDARDS
+- All comments and documentation in English only
+- Mandatory file headers with author, date, version, purpose
+- Detailed function documentation with examples
+- Matrix protocol references where applicable
+- Performance characteristics documentation
+
+## FILE STRUCTURE REQUIREMENTS
+Every .rs file must have:
+1. Comprehensive file header comment
+2. Organized imports (std -> external -> internal)
+3. Detailed function documentation
+4. Complete test module at end
+5. Error handling with logging
+6. Performance instrumentation
+
+## FUNCTION STANDARDS
+```rust
+#[instrument(level = "debug")]
+pub async fn function_name(&self, param: Type) -> Result<ReturnType, Error> {
+    let start = Instant::now();
+    debug!("🔧 Starting operation");
+    
+    // Input validation with error handling
+    // Main logic with comprehensive error handling
+    // Performance logging
+    
+    info!("✅ Completed in {:?}", start.elapsed());
+    Ok(result)
+}
+```
+
+## ERROR HANDLING REQUIREMENTS
+- Use Result<T, Error> for all fallible operations
+- Provide detailed error context
+- Log all errors with emoji markers (🔧 ✅ ❌ ⚠️ 🎉)
+- Include performance metrics in logs
+- Implement graceful error recovery
+
+## TESTING REQUIREMENTS
+Every module needs comprehensive tests:
+- All public functions (100% coverage goal)
+- Error conditions and edge cases
+- Concurrent access patterns
+- Performance benchmarks
+- Matrix protocol compliance tests
+
+## PERFORMANCE OPTIMIZATION
+- Use async/await for all I/O
+- Implement connection pooling (max 200k connections)
+- Add performance instrumentation
+- Monitor memory usage and latency
+- Use efficient data structures
+- Profile critical paths
+- Implement advanced load balancing
+- Use memory-mapped files for large datasets
+- Optimize garbage collection and memory allocation
+
+## MATRIX PROTOCOL COMPLIANCE
+- Reference Synapse implementation
+- Follow Matrix specification strictly
+- Implement full Client-Server API
+- Support Server-Server API (federation)
+- Handle all Matrix event types
+- Maintain API compatibility
+
+## DEPENDENCIES MANAGEMENT
+- Use latest stable versions
+- Prefer async-compatible crates
+- Include comprehensive dev-dependencies for testing
+- Document dependency choices
+- Regular security updates
+
+## WORKFLOW REQUIREMENTS
+Before every commit:
+1. cargo check (must pass)
+2. cargo test (all pass)
+3. cargo clippy (no warnings)
+4. cargo fmt (formatted)
+5. Update docs if needed
+
+## MONITORING & OBSERVABILITY
+- Structured logging with tracing
+- Metrics collection (counters, histograms, gauges)
+- Health check endpoints
+- Performance monitoring
+- Error rate tracking
+- Connection monitoring
+
+## SECURITY STANDARDS
+- Input validation for all user data
+- Prepared statements for database queries
+- Rate limiting implementation
+- Authentication/authorization checks
+- CSRF protection
+- Data sanitization
+
+## CODE STYLE
+- Use snake_case for functions/variables
+- Use PascalCase for structs/enums/traits
+- 4-space indentation
+- 100-character line limit
+- Comprehensive error messages
+- Clear variable names
+
+## DATABASE OPTIMIZATION
+- Connection pooling with deadpool-postgres
+- Prepared statements for all queries
+- Transaction management
+- Proper indexing
+- Migration scripts with versioning
+- Database health monitoring
+
+This ensures enterprise-grade code quality matching Synapse functionality in Rust. 
+https://github.com/element-hq/synapse
+
+This project still has many features to be implemented. We hope to gradually improve it by following the Synapse project: Matrixon is Beta, meaning you can join and participate in most
+Matrix rooms, but not all features are supported and you might run into bugs
+from time to time.
+There are still a few important features missing:
+
+E2EE emoji comparison over federation (E2EE chat works)
+Outgoing read receipts, typing, presence over federation (incoming works)

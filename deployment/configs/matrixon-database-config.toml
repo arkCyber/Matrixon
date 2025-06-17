@@ -1,0 +1,219 @@
+##
+# matrixon Matrix Server Database Configuration
+# 
+# This configuration supports both SQLite and PostgreSQL backends
+# Change the 'database_backend' parameter to switch between databases
+# 
+# Supported backends: "sqlite", "postgresql", "rocksdb"
+# 
+# @author: Matrix Server Performance Team
+# @date: 2024-01-01
+# @version: 2.0.0
+##
+
+[global]
+# =============================================================================
+# SERVER BASIC CONFIGURATION
+# =============================================================================
+
+# The server_name is the pretty name of this server
+# It is used as a suffix for user and room ids
+server_name = "localhost"
+
+# Server binding configuration
+address = "127.0.0.1"
+port = 6167
+
+# Maximum request size (in bytes) - 20MB default
+max_request_size = 20_000_000
+
+# Allow user registration
+allow_registration = true
+
+# Allow federation with other Matrix servers
+allow_federation = true
+
+# Enable the display name lightning bolt on registration
+enable_lightning_bolt = true
+
+# Servers listed here will be used to gather public keys of other servers
+trusted_servers = ["matrix.org"]
+
+# Controls the log verbosity
+log = "info"
+
+# =============================================================================
+# DATABASE BACKEND SELECTION
+# =============================================================================
+
+# Switch between database backends by changing this parameter
+# Options: "sqlite", "postgresql", "rocksdb"
+database_backend = "postgresql"
+
+# =============================================================================
+# SQLITE CONFIGURATION
+# =============================================================================
+
+# SQLite database path (used when database_backend = "sqlite")
+# This is a file path to the SQLite database file
+# Default: "./matrixon.db"
+database_path = "./matrixon.db"
+
+# SQLite specific optimizations
+sqlite_cache_size_mb = 512.0           # SQLite cache size in MB
+sqlite_wal_mode = true                 # Enable WAL mode for better concurrency
+sqlite_synchronous = "NORMAL"          # SQLite synchronous mode (OFF, NORMAL, FULL)
+sqlite_journal_mode = "WAL"            # Journal mode (DELETE, TRUNCATE, PERSIST, MEMORY, WAL, OFF)
+sqlite_temp_store = "MEMORY"           # Temporary storage location
+sqlite_mmap_size = 268435456           # Memory-mapped I/O size (256MB)
+sqlite_busy_timeout = 30000            # Busy timeout in milliseconds
+
+# =============================================================================
+# POSTGRESQL CONFIGURATION  
+# =============================================================================
+
+# PostgreSQL connection string (used when database_backend = "postgresql")
+# Format: postgresql://username:password@host:port/database
+# For Docker: postgresql://matrixon:matrixon@postgres:5432/matrixon
+# For local: postgresql://matrixon:matrixon@localhost:5432/matrixon
+postgresql_url = "postgresql://matrixon:matrixon@localhost:5432/matrixon"
+
+# PostgreSQL connection pool settings
+pg_max_connections = 100               # Maximum connections in pool
+pg_min_connections = 10                # Minimum connections to maintain
+pg_connection_timeout = 30             # Connection timeout in seconds
+pg_idle_timeout = 600                  # Idle connection timeout in seconds
+pg_max_lifetime = 3600                 # Maximum connection lifetime in seconds
+
+# PostgreSQL performance settings
+pg_statement_cache_capacity = 100      # Prepared statement cache size
+pg_application_name = "matrixon-matrix" # Application name for monitoring
+pg_ssl_mode = "prefer"                 # SSL mode (disable, allow, prefer, require)
+
+# =============================================================================
+# GENERAL DATABASE PERFORMANCE SETTINGS
+# =============================================================================
+
+# Database cache settings (applies to all backends)
+db_cache_capacity_mb = 1024.0          # Database cache in MB
+matrixon_cache_capacity_modifier = 1.0  # Cache capacity modifier
+pdu_cache_capacity = 100000            # PDU cache entries
+
+# RocksDB settings (if using rocksdb backend)
+rocksdb_max_open_files = 512           # Maximum open files
+rocksdb_compression = "lz4"            # Compression algorithm (none, snappy, lz4, zstd)
+rocksdb_block_cache_size_mb = 256      # Block cache size in MB
+
+# =============================================================================
+# HIGH CONCURRENCY SETTINGS
+# =============================================================================
+
+# Maximum concurrent requests
+max_concurrent_requests = 1000
+
+# Cleanup interval in seconds
+cleanup_second_interval = 300
+
+# Maximum events to fetch in prev_events
+max_fetch_prev_events = 100
+
+# =============================================================================
+# MONITORING AND MAINTENANCE
+# =============================================================================
+
+# Database health check settings
+db_health_check_interval = 30          # Health check interval in seconds
+db_health_check_timeout = 5            # Health check timeout in seconds
+db_connection_retry_attempts = 3       # Number of retry attempts
+db_connection_retry_delay = 1          # Delay between retries in seconds
+
+# Database maintenance settings
+auto_vacuum_enabled = true             # Enable automatic database maintenance
+vacuum_interval_hours = 24             # Vacuum interval for SQLite
+analyze_interval_hours = 6             # Analyze interval for statistics
+
+# Performance monitoring
+enable_query_logging = false           # Log slow queries (disable in production)
+slow_query_threshold_ms = 1000         # Log queries slower than this (ms)
+enable_performance_metrics = true      # Enable performance metrics collection
+
+# =============================================================================
+# BACKUP AND RECOVERY SETTINGS
+# =============================================================================
+
+# Backup configuration
+backup_enabled = false                 # Enable automatic backups
+backup_interval_hours = 6              # Backup interval in hours
+backup_retention_days = 7              # Keep backups for N days
+backup_path = "./backups/"             # Backup directory path
+backup_compression = true              # Compress backup files
+
+# Point-in-time recovery (PostgreSQL only)
+postgres_wal_backup_enabled = false    # Enable WAL archiving
+postgres_archive_command = ""          # Command to archive WAL files
+
+# =============================================================================
+# DEVELOPMENT AND TESTING SETTINGS
+# =============================================================================
+
+# Testing database settings
+test_database_path = "./matrixon_test.db"
+test_postgresql_url = "postgresql://matrixon:matrixon@localhost:5432/matrixon_test"
+
+# Development mode settings
+development_mode = false               # Enable development features
+debug_database_queries = false        # Log all database queries (very verbose)
+enable_database_migrations = true     # Enable automatic migrations
+
+# =============================================================================
+# WELL-KNOWN CONFIGURATION
+# =============================================================================
+
+[global.well_known]
+# Well-known URIs for client discovery
+client = "http://localhost:6167"
+# server = "localhost:8448"
+
+# =============================================================================
+# ENVIRONMENT VARIABLE OVERRIDES
+# =============================================================================
+
+# The following settings can be overridden by environment variables:
+# 
+# matrixon_DATABASE_BACKEND     -> database_backend
+# matrixon_DATABASE_PATH        -> database_path (for SQLite)
+# matrixon_POSTGRESQL_URL       -> postgresql_url (for PostgreSQL)
+# matrixon_DB_CACHE_MB          -> db_cache_capacity_mb
+# matrixon_MAX_CONNECTIONS      -> max_concurrent_requests
+# matrixon_LOG_LEVEL            -> log
+# matrixon_SERVER_NAME          -> server_name
+# matrixon_PORT                 -> port
+# matrixon_ADDRESS              -> address
+#
+# Example usage:
+# export matrixon_DATABASE_BACKEND=postgresql
+# export matrixon_POSTGRESQL_URL="postgresql://user:pass@host:5432/db"
+# ./matrixon
+
+# =============================================================================
+# QUICK SETUP EXAMPLES
+# =============================================================================
+
+# Example 1: SQLite for development
+# database_backend = "sqlite"
+# database_path = "./matrixon.db"
+# db_cache_capacity_mb = 256.0
+
+# Example 2: PostgreSQL for production
+# database_backend = "postgresql"  
+# postgresql_url = "postgresql://matrixon:matrixon@localhost:5432/matrixon"
+# db_cache_capacity_mb = 2048.0
+# max_concurrent_requests = 5000
+
+# Example 3: High-performance PostgreSQL
+# database_backend = "postgresql"
+# postgresql_url = "postgresql://matrixon:matrixon@localhost:5432/matrixon"
+# db_cache_capacity_mb = 8192.0
+# max_concurrent_requests = 20000
+# pg_max_connections = 500
+# pdu_cache_capacity = 1000000 

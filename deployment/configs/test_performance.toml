@@ -1,0 +1,113 @@
+##
+# matrixon Matrix Server Test Performance Configuration
+# 
+# Optimized for performance testing with 20,000+ concurrent connections
+# 
+# @author: Matrix Server Performance Team
+# @date: 2024-01-01
+# @version: 2.0.0
+##
+
+[server]
+# Test server configuration
+address = "127.0.0.1"
+port = 8008
+server_name = "test.matrix.local"
+
+# Maximum performance settings for testing - 200k target
+max_concurrent_requests = 200000       # Increased from 10000 to 200000
+max_fetch_prev_events = 500           # Increased from 200 to 500
+max_request_size = 50_000_000         # Increased to 50MB for testing
+
+# High concurrency worker configuration
+blocking_threads = 64                 # Increased from 32 to 64
+worker_threads = 128                  # Increased from 64 to 128
+
+[database]
+# PostgreSQL test database
+backend = "postgresql"
+path = "postgresql://matrixon:matrixon@localhost:5432/matrixon_test"
+
+# Aggressive caching for test performance
+matrixon_cache_capacity_modifier = 4.0 # Increased from 3.0 to 4.0
+db_cache_capacity_mb = 32768.0        # Increased from 8GB to 32GB cache
+pdu_cache_capacity = 20000000         # Increased from 5M to 20M PDU cache
+
+# RocksDB settings
+rocksdb_max_open_files = 8192         # Increased from 2048 to 8192
+
+[testing]
+# Test-specific performance settings
+batch_size = 2000                     # Increased from 1000 to 2000
+concurrent_connections = 20000        # Increased from 5000 to 20000
+max_latency_ms = 50                   # Decreased from 200 to 50ms
+operations_per_connection = 500       # Increased from 200 to 500
+test_duration_seconds = 60            # Keep same
+
+# Advanced test scenarios
+load_test_duration = 300              # Keep same 5 minutes
+memory_test_iterations = 100000       # Increased from 50000 to 100000
+stress_test_connections = 200000      # Increased from 10000 to 200000
+
+[performance]
+# Performance optimization
+allow_check_for_updates = false
+cleanup_second_interval = 60          # Decreased from 120 to 60
+
+# Connection pooling for tests
+connection_pool_size = 2000           # Increased from 300 to 2000
+connection_timeout_seconds = 5        # Decreased from 10 to 5
+idle_timeout_seconds = 150            # Decreased from 300 to 150
+
+# Batch settings optimized for testing
+batch_timeout_ms = 25                 # Decreased from 50 to 25
+max_batch_size = 5000                 # Increased from 2000 to 5000
+
+[monitoring]
+# Detailed monitoring for tests
+enable_metrics = true
+log_level = "info"                    # Keep detailed logging for tests
+metrics_port = 9091
+
+# Performance profiling
+enable_profiling = true
+profile_sample_rate = 0.05            # Decreased from 0.1 to 0.05 for performance
+
+# Memory tracking
+memory_report_interval = 15           # Decreased from 30 to 15
+track_memory_usage = true
+
+[thresholds]
+# Performance thresholds for test validation - more aggressive targets
+max_average_latency_ms = 50           # Decreased from 100 to 50ms
+max_cpu_usage_percent = 85.0          # Increased from 80.0 to 85.0
+max_memory_usage_mb = 65536           # Increased from 16GB to 64GB limit
+min_success_rate_percent = 99.0       # Increased from 95.0 to 99.0
+min_throughput_ops_per_sec = 50000    # Increased from 10000 to 50000
+
+# Database-specific thresholds
+max_db_connections = 2000             # Increased from 500 to 2000
+max_query_time_ms = 25                # Decreased from 50 to 25ms
+min_db_cache_hit_ratio = 95.0         # Increased from 90.0 to 95.0
+
+[security]
+# Minimal security for testing
+allow_encryption = true
+allow_federation = false
+allow_registration = false
+allow_room_creation = true
+allow_unstable_room_versions = true   # Allow for testing
+
+# Relaxed rate limiting for testing
+rate_limit_burst = 100000             # Increased from 50000 to 100000
+rate_limit_per_second = 50000         # Increased from 10000 to 50000
+
+[media]
+# Test media configuration
+backend = "filesystem"
+max_file_size = 100_000_000           # Increased to 100MB for testing
+path = "/tmp/matrixon_test_media"
+
+[emergency]
+# Test emergency access
+password = "test_emergency_password"

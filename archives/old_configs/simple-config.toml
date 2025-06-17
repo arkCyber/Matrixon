@@ -1,0 +1,12 @@
+# Matrixon Simple Configuration
+server_name = "matrixon.local"
+address = "0.0.0.0"
+port = 8008
+database_path = "./data"
+allow_registration = true
+allow_federation = false
+tracing_flame = false
+max_request_size = 20971520  # 20MB
+registration_token = "matrixon_secret_2024"
+jwt_secret = "matrixon_jwt_secret_ultra_secure_2024_production"
+emergency_password = "emergency_access_2024" 

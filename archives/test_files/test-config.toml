@@ -1,0 +1,26 @@
+server_name = "matrixon.local"
+
+[server]
+name = "matrixon.local"
+bind_address = "0.0.0.0"
+port = 8008
+max_connections = 200000
+worker_threads = 0
+max_request_size = 20000000
+
+[database]
+url = "sqlite:./data/matrixon.db"
+max_connections = 100
+
+[federation]
+enabled = false
+
+[registration]
+enabled = true
+
+[media]
+max_upload_size = 10000000
+media_store_path = "./media"
+
+[logging]
+level = "info" 

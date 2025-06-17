@@ -1,0 +1,21 @@
+Template: matrix-matrixon/hostname
+Type: string
+Default: localhost
+Description: The server (host)name of the Matrix NextServer
+ This is the hostname the NextServer will be reachable at via a client.
+ .
+ If set to "localhost", you can connect with a client locally and clients
+ from other hosts and also other NextServers will not be able to reach you!
+
+Template: matrix-matrixon/address
+Type: string
+Default: 127.0.0.1
+Description: The listen address of the Matrix NextServer
+ This is the address the NextServer will listen on. Leave it set to 127.0.0.1
+ when using a reverse proxy.
+
+Template: matrix-matrixon/port
+Type: string
+Default: 6167
+Description: The port of the Matrix NextServer
+ This port is most often just accessed by a reverse proxy.

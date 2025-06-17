@@ -1,0 +1,144 @@
+# matrixon Matrix Server - CAPTCHA Configuration Example
+#
+# This configuration enables enterprise-grade anti-spam protection
+# for user registration using CAPTCHA verification
+#
+# 🔒 Security Features:
+# - Multi-provider support (hCaptcha, reCAPTCHA v2/v3, Cloudflare Turnstile)
+# - IP-based rate limiting and whitelisting
+# - Progressive delay for repeated failures
+# - Comprehensive logging and monitoring
+#
+# 📊 Performance Targets:
+# - <50ms verification latency
+# - 20k+ verifications per second
+# - 99.9% uptime and success rate
+# - Efficient caching with 1-hour TTL
+
+[captcha]
+# Enable CAPTCHA verification for user registration
+# Disabled by default for development environments
+enabled = true
+
+# CAPTCHA provider selection
+# Options: hcaptcha, recaptcha_v2, recaptcha_v3, turnstile, custom
+provider = "hcaptcha"
+
+# Verification strictness level
+# Options: lenient, normal, strict, paranoid
+# - lenient: Lower security, better user experience (development)
+# - normal: Balanced security and usability (recommended)
+# - strict: Higher security, may impact legitimate users
+# - paranoid: Maximum security for enterprise environments
+strictness = "normal"
+
+# Enable detailed debug logging (disable in production)
+debug_logging = false
+
+# Provider-specific configuration
+[captcha.provider_config]
+# Your CAPTCHA site key (public key)
+# Get this from your CAPTCHA provider dashboard
+site_key = "10000000-ffff-ffff-ffff-000000000001"
+
+# Your CAPTCHA secret key (private key) 
+# ⚠️ KEEP THIS SECRET - do not commit to version control
+secret_key = "0x0000000000000000000000000000000000000000"
+
+# Minimum score threshold for reCAPTCHA v3 (0.0-1.0)
+# Higher values = stricter verification
+min_score = 0.5
+
+# Rate limiting configuration
+[captcha.rate_limit]
+# Maximum verification attempts per IP address per minute
+max_attempts_per_minute = 10
+
+# Maximum verification attempts per IP address per hour
+max_attempts_per_hour = 100
+
+# Cooldown period after failed attempts (seconds)
+cooldown_seconds = 60
+
+# Progressive delay multiplier for repeated failures
+progressive_delay = 1.5
+
+# Security features
+[captcha.security]
+# Enable IP whitelisting to bypass CAPTCHA for trusted IPs
+enable_ip_whitelist = false
+
+# List of whitelisted IP addresses and CIDR ranges
+whitelisted_ips = [
+    "127.0.0.1",      # Localhost
+    "::1",            # IPv6 localhost
+]
+
+# Enable hostname verification in CAPTCHA responses
+verify_hostname = true
+
+# List of allowed hostnames for verification
+allowed_hostnames = [
+    "yourdomain.com",
+    "matrix.yourdomain.com"
+]
+
+# Enable challenge timeout enforcement
+enable_challenge_timeout = true
+
+# Challenge validity timeout in seconds (5 minutes default)
+challenge_timeout_seconds = 300
+
+# Performance tuning
+[captcha.performance]
+# HTTP request timeout for verification calls (seconds)
+verification_timeout_seconds = 10
+
+# Number of retry attempts for failed verification requests
+retry_attempts = 3
+
+# Enable response caching to improve performance
+enable_caching = true
+
+# Cache TTL for successful verifications (seconds)
+cache_ttl_seconds = 3600
+
+# Maximum concurrent verification requests
+max_concurrent_verifications = 100
+
+# =============================================================================
+# Provider Examples
+# =============================================================================
+
+# hCaptcha Configuration:
+# [captcha]
+# enabled = true
+# provider = "hcaptcha"
+# [captcha.provider_config]
+# site_key = "your_hcaptcha_site_key"
+# secret_key = "your_hcaptcha_secret_key"
+
+# reCAPTCHA v2 Configuration:
+# [captcha]
+# enabled = true
+# provider = "recaptcha_v2"
+# [captcha.provider_config]
+# site_key = "your_recaptcha_site_key"
+# secret_key = "your_recaptcha_secret_key"
+
+# reCAPTCHA v3 Configuration:
+# [captcha]
+# enabled = true
+# provider = "recaptcha_v3"
+# [captcha.provider_config]
+# site_key = "your_recaptcha_v3_site_key"
+# secret_key = "your_recaptcha_v3_secret_key"
+# min_score = 0.7
+
+# Cloudflare Turnstile Configuration:
+# [captcha]
+# enabled = true
+# provider = "turnstile"
+# [captcha.provider_config]
+# site_key = "your_turnstile_site_key"
+# secret_key = "your_turnstile_secret_key" 

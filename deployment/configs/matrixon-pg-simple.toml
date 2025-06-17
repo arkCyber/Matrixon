@@ -1,0 +1,37 @@
+[global]
+# The server_name is the pretty name of this server
+server_name = "localhost"
+
+# Database backend - using PostgreSQL
+database_backend = "postgresql"
+database_path = "postgresql://matrixon:matrixon@localhost:5432/matrixon"
+
+# The port Matrixon will be running on
+port = 6167
+
+# Bind address
+address = "127.0.0.1"
+
+# Max size for uploads (10MB)
+max_request_size = 10_000_000
+
+# Enables registration
+allow_registration = true
+
+# Allow federation with other Matrix servers
+allow_federation = true
+
+# Enable the display name lightning bolt on registration
+enable_lightning_bolt = true
+
+# Controls the log verbosity
+log = "info"
+
+# Basic cache settings
+db_cache_capacity_mb = 128.0
+max_concurrent_requests = 100
+pdu_cache_capacity = 10000
+
+# Well-known configuration for client discovery
+[global.well_known]
+client = "http://localhost:6167" 

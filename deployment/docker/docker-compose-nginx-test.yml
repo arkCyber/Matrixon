@@ -1,0 +1,64 @@
+# =============================================================================
+# Matrixon Nginx Test Environment
+# =============================================================================
+#
+# Project: Matrixon - Ultra High Performance Matrix NextServer
+# Author: arkSong (arksong2018@gmail.com) - Founder of Matrixon Innovation Project
+# Date: 2024-12-11
+# Version: 0.11.0-alpha
+# License: Apache 2.0 / MIT
+#
+# Description:
+#   Simplified test environment for nginx configuration testing
+#   Uses mock services to test nginx reverse proxy functionality
+#
+# =============================================================================
+
+services:
+  # Mock Matrixon service for testing
+  matrixon-mock:
+    image: nginx:alpine
+    container_name: matrixon-server-mock
+    restart: unless-stopped
+    expose:
+      - "8008"
+      - "8448"
+      - "9090"
+    volumes:
+      - ./docker/mock-server.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - matrixon-network
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: matrixon-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"           # Client API
+      - "8448:8448"       # Federation API  
+      - "9090:9090"       # Metrics/Admin
+    volumes:
+      - ./docker/nginx.conf:/etc/nginx/nginx.conf:ro
+      - nginx_logs:/var/log/nginx
+    networks:
+      - matrixon-network
+    depends_on:
+      - matrixon-mock
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+volumes:
+  nginx_logs:
+    driver: local
+
+networks:
+  matrixon-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16 

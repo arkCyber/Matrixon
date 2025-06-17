@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matrixon Matrix Server</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background: #f4f4f4; }
+        .container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { color: #333; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 4px; }
+        .healthy { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        a { color: #007bff; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Matrixon Matrix Server</h1>
+        <div class="status healthy">
+            <strong>Status:</strong> Running in Production Environment
+        </div>
+        <div class="status info">
+            <strong>Version:</strong> 0.11.0-alpha
+        </div>
+        
+        <h2>Available Services</h2>
+        <ul>
+            <li><a href="/_matrix/client/versions">Matrix Client API</a></li>
+            <li><a href="/health">Health Check</a></li>
+            <li><a href="/metrics">Metrics</a></li>
+            <li><a href="http://localhost:3001" target="_blank">Grafana Dashboard</a></li>
+            <li><a href="http://localhost:9090" target="_blank">Prometheus</a></li>
+        </ul>
+        
+        <h2>Documentation</h2>
+        <ul>
+            <li><a href="https://matrix.org/docs/" target="_blank">Matrix Protocol Documentation</a></li>
+            <li><a href="https://github.com/arksong2018/Matrixon" target="_blank">Matrixon GitHub Repository</a></li>
+        </ul>
+    </div>
+</body>
+</html>

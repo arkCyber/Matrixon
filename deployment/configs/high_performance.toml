@@ -1,0 +1,115 @@
+##
+# matrixon Matrix Server High Performance Configuration
+# 
+# Optimized for 20,000+ concurrent connections and high throughput
+# 
+# @author: Matrix Server Performance Team
+# @date: 2024-01-01
+# @version: 2.0.0
+##
+
+[server]
+# Server binding configuration
+address = "0.0.0.0"
+port = 8008
+server_name = "matrix.example.com"
+
+# High performance settings - 200k target
+max_concurrent_requests = 200000      # Increased from 10000 to 200000
+max_fetch_prev_events = 500          # Increased from 200 to 500
+max_request_size = 100_000_000       # Increased to 100MB for large media uploads
+
+# Worker thread configuration - 128 threads for high concurrency
+blocking_threads = 64                # Increased from 32 to 64
+worker_threads = 128                 # Increased from 64 to 128
+
+[database]
+# PostgreSQL backend for high performance
+backend = "postgresql"
+path = "postgresql://matrixon:matrixon@localhost:5432/matrixon"
+
+# Database cache and performance settings
+matrixon_cache_capacity_modifier = 3.0 # Increased from 2.0 to 3.0
+db_cache_capacity_mb = 32768.0        # Increased from 8GB to 32GB cache for 200k connections
+pdu_cache_capacity = 20000000         # Increased from 5M to 20M PDU cache
+
+# RocksDB fallback settings (if needed)
+rocksdb_max_open_files = 8192         # Increased from 2048 to 8192
+
+[performance]
+# Memory and resource management
+allow_check_for_updates = false       # Disable for production performance
+cleanup_second_interval = 60          # Decreased from 180 for more frequent cleanup
+
+# Connection pool settings for PostgreSQL
+connection_pool_size = 2000           # Increased from 200 to 2000
+connection_timeout_seconds = 15       # Decreased from 30 to 15
+idle_timeout_seconds = 300            # Decreased from 600 to 300
+
+# Batch operation settings
+batch_size = 2000                     # Increased from 1000 to 2000
+batch_timeout_ms = 50                 # Decreased from 100 to 50
+max_batch_size = 5000                 # Added new setting
+
+[monitoring]
+# Performance monitoring settings
+enable_metrics = true
+log_level = "info"                    # Changed from "warn" to "info" for better monitoring
+metrics_port = 9090
+
+# Performance profiling
+enable_profiling = true               # Added for performance analysis
+profile_sample_rate = 0.01            # Low sampling rate for production
+memory_report_interval = 15           # Added memory monitoring
+
+# Jaeger tracing for performance analysis
+allow_jaeger = true
+jaeger_endpoint = "http://localhost:14268/api/traces"
+
+[thresholds]
+# Production performance thresholds
+min_throughput_ops_per_sec = 50000    # Target 50k ops/sec
+max_average_latency_ms = 50           # Max 50ms latency
+min_success_rate_percent = 99.5       # 99.5% success rate target
+max_memory_usage_mb = 65536           # 64GB memory limit
+max_cpu_usage_percent = 85.0          # 85% CPU usage limit
+
+# Database thresholds
+max_db_connections = 2000             # Match connection pool size
+max_query_time_ms = 25                # 25ms max query time
+min_db_cache_hit_ratio = 95.0         # 95% cache hit ratio target
+
+[security]
+# Security settings for high-performance deployment
+allow_encryption = true
+allow_federation = true
+allow_registration = false
+allow_room_creation = true
+allow_unstable_room_versions = false
+
+# Rate limiting for high concurrency
+rate_limit_burst = 20000              # Increased from 5000 to 20000
+rate_limit_per_second = 10000         # Increased from 1000 to 10000
+
+[media]
+# Media handling for high throughput
+backend = "filesystem"
+max_file_size = 200_000_000           # Increased to 200MB
+path = "/var/lib/matrixon/media"
+retention_days = 365
+
+[turn]
+# TURN server configuration for voice/video
+ttl = 86400
+# uris = ["turn:turn.example.com:3478"]
+# username = "matrixon"
+# password = "your-turn-password"
+
+[well_known]
+# Well-known configuration
+# client = "https://matrix.example.com"
+# server = "matrix.example.com:443"
+
+[emergency]
+# Emergency access configuration
+# password = "your-emergency-password"

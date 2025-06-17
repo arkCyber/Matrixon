@@ -1,0 +1,150 @@
+{
+  "API": {
+    "HTTPHeaders": {
+      "Access-Control-Allow-Origin": ["*"]
+    }
+  },
+  "Addresses": {
+    "API": "/ip4/0.0.0.0/tcp/5001",
+    "Announce": [],
+    "Gateway": "/ip4/0.0.0.0/tcp/8080",
+    "NoAnnounce": [],
+    "Swarm": [
+      "/ip4/0.0.0.0/tcp/4001",
+      "/ip6/::/tcp/4001"
+    ]
+  },
+  "Bootstrap": [
+    "/dnsaddr/bootstrap.libp2p.io/p2p/QmNnooDu7bfjPFoTZYxMNLWUQJyrVwtbZg5gBMjTezGAJN",
+    "/dnsaddr/bootstrap.libp2p.io/p2p/QmQCU2EcMqAqQPR2i9bChDtGNJchTbq5TbXJJ16u19uLTa",
+    "/dnsaddr/bootstrap.libp2p.io/p2p/QmbLHAnMoJPWSCR5Zhtx6BHJX9KiKNN6tpvbUcqanj75Nb",
+    "/dnsaddr/bootstrap.libp2p.io/p2p/QmcZf59bWwK5XFi76CZX8cbJ4BhTzzA3gU1ZjYZcYW3dwt"
+  ],
+  "Datastore": {
+    "BloomFilterSize": 0,
+    "GCPeriod": "1h",
+    "HashOnRead": false,
+    "Spec": {
+      "mounts": [
+        {
+          "child": {
+            "path": "blocks",
+            "shardFunc": "/repo/flatfs/shard/v1/next-to-last/2",
+            "sync": true,
+            "type": "flatfs"
+          },
+          "mountpoint": "/blocks",
+          "prefix": "flatfs.datastore",
+          "type": "measure"
+        },
+        {
+          "child": {
+            "compression": "none",
+            "path": "datastore",
+            "type": "levelds"
+          },
+          "mountpoint": "/",
+          "prefix": "leveldb.datastore",
+          "type": "measure"
+        }
+      ],
+      "type": "mount"
+    },
+    "StorageGCWatermark": 90,
+    "StorageMax": "10GB"
+  },
+  "Discovery": {
+    "MDNS": {
+      "Enabled": true,
+      "Interval": 10
+    }
+  },
+  "Experimental": {
+    "AcceleratedDHTClient": true,
+    "FilestoreEnabled": true,
+    "GraphsyncEnabled": true,
+    "Libp2pStreamMounting": true,
+    "P2pHttpProxy": true,
+    "PreferTLS": true,
+    "StrategicProviding": true,
+    "UrlstoreEnabled": true
+  },
+  "Gateway": {
+    "APICommands": [],
+    "HTTPHeaders": {
+      "Access-Control-Allow-Headers": ["X-Requested-With"],
+      "Access-Control-Allow-Methods": ["GET"],
+      "Access-Control-Allow-Origin": ["*"]
+    },
+    "NoDNSLink": false,
+    "NoFetch": false,
+    "PathPrefixes": [],
+    "PublicGateways": null,
+    "RootRedirect": "",
+    "Writable": false
+  },
+  "Identity": {
+    "PeerID": ""
+  },
+  "Ipns": {
+    "RecordLifetime": "",
+    "RepublishPeriod": "",
+    "ResolveCacheSize": 128
+  },
+  "Mounts": {
+    "FuseAllowOther": true,
+    "IPFS": "/ipfs",
+    "IPNS": "/ipns"
+  },
+  "Pubsub": {
+    "DisableSigning": false,
+    "Router": "gossipsub"
+  },
+  "Reprovider": {
+    "Interval": "12h",
+    "Strategy": "all"
+  },
+  "Routing": {
+    "Type": "dht"
+  },
+  "Swarm": {
+    "AddrFilters": null,
+    "ConnMgr": {
+      "GracePeriod": "20s",
+      "HighWater": 900,
+      "LowWater": 600,
+      "Type": "basic"
+    },
+    "DisableBandwidthMetrics": false,
+    "DisableNatPortMap": false,
+    "DisableRelay": false,
+    "EnableRelayHop": false,
+    "EnableAutoNATService": true,
+    "EnableAutoRelay": true,
+    "EnableHolePunching": true,
+    "ResourceMgr": {
+      "Limits": {
+        "System": {
+          "ConnsInbound": 1000,
+          "ConnsOutbound": 1000,
+          "Conns": 2000,
+          "StreamsInbound": 5000,
+          "StreamsOutbound": 5000,
+          "Streams": 10000,
+          "Memory": 4,
+          "FD": 1000
+        },
+        "Transient": {
+          "ConnsInbound": 100,
+          "ConnsOutbound": 100,
+          "Conns": 200,
+          "StreamsInbound": 500,
+          "StreamsOutbound": 500,
+          "Streams": 1000,
+          "Memory": 1,
+          "FD": 100
+        }
+      }
+    }
+  }
+} 

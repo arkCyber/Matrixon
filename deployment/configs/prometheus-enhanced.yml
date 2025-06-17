@@ -1,0 +1,250 @@
+# Matrixon Matrix Server - Enhanced Prometheus Configuration
+# Author: arkSong (arksong2018@gmail.com)
+# Date: 2024-12-19
+# Version: 1.0
+# Purpose: Comprehensive monitoring with alerting for Matrixon services
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'matrixon-production'
+    environment: 'production'
+
+# Alerting configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+# Load alerting rules
+rule_files:
+  - "/etc/prometheus/alert-rules.yml"
+
+# Scrape configurations for different services
+scrape_configs:
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+
+  # PostgreSQL database monitoring
+  - job_name: 'postgres-exporter'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    metric_relabel_configs:
+      - source_labels: [__name__]
+        regex: 'pg_stat_activity_count'
+        target_label: 'metric_type'
+        replacement: 'connection_pool'
+      - source_labels: [__name__]
+        regex: 'pg_stat_database_.*'
+        target_label: 'metric_type'
+        replacement: 'database_stats'
+
+  # Redis cache monitoring
+  - job_name: 'redis-exporter'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+    metric_relabel_configs:
+      - source_labels: [__name__]
+        regex: 'redis_connected_clients'
+        target_label: 'metric_type'
+        replacement: 'connection_pool'
+      - source_labels: [__name__]
+        regex: 'redis_memory_.*'
+        target_label: 'metric_type'
+        replacement: 'memory_usage'
+
+  # System metrics monitoring
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+    metric_relabel_configs:
+      - source_labels: [__name__]
+        regex: 'node_cpu_.*'
+        target_label: 'metric_type'
+        replacement: 'cpu_usage'
+      - source_labels: [__name__]
+        regex: 'node_memory_.*'
+        target_label: 'metric_type'
+        replacement: 'memory_usage'
+      - source_labels: [__name__]
+        regex: 'node_filesystem_.*'
+        target_label: 'metric_type'
+        replacement: 'disk_usage'
+      - source_labels: [__name__]
+        regex: 'node_network_.*'
+        target_label: 'metric_type'
+        replacement: 'network_usage'
+
+  # Container metrics monitoring
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+    metric_relabel_configs:
+      - source_labels: [__name__]
+        regex: 'container_cpu_.*'
+        target_label: 'metric_type'
+        replacement: 'container_cpu'
+      - source_labels: [__name__]
+        regex: 'container_memory_.*'
+        target_label: 'metric_type'
+        replacement: 'container_memory'
+      - source_labels: [name]
+        regex: '^/(.+)$'
+        target_label: 'container_name'
+        replacement: '${1}'
+
+  # Elasticsearch monitoring
+  - job_name: 'elasticsearch-exporter'
+    static_configs:
+      - targets: ['elasticsearch-exporter:9114']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+    scrape_timeout: 10s
+    metric_relabel_configs:
+      - source_labels: [__name__]
+        regex: 'elasticsearch_.*'
+        target_label: 'metric_type'
+        replacement: 'search_engine'
+
+  # AlertManager monitoring
+  - job_name: 'alertmanager'
+    static_configs:
+      - targets: ['alertmanager:9093']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+
+  # Grafana monitoring
+  - job_name: 'grafana'
+    static_configs:
+      - targets: ['grafana:3000']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+
+  # NGINX monitoring - disabled due to configuration issues
+  # - job_name: 'nginx'
+  #   static_configs:
+  #     - targets: ['nginx:80']
+  #   metrics_path: '/nginx_status'
+  #   scrape_interval: 15s
+
+  # Matrixon application monitoring (when available)
+  - job_name: 'matrixon-server'
+    static_configs:
+      - targets: ['host.docker.internal:6167']
+    metrics_path: '/_matrix/metrics'
+    scrape_interval: 10s
+    scrape_timeout: 5s
+    metric_relabel_configs:
+      - source_labels: [__name__]
+        regex: 'matrixon_connection_pool_.*'
+        target_label: 'metric_type'
+        replacement: 'connection_pool'
+      - source_labels: [__name__]
+        regex: 'matrixon_http_.*'
+        target_label: 'metric_type'
+        replacement: 'http_metrics'
+      - source_labels: [__name__]
+        regex: 'matrixon_auth_.*'
+        target_label: 'metric_type'
+        replacement: 'authentication'
+
+# Recording rules for performance optimization
+recording_rules:
+  - name: connection_pool_rules
+    rules:
+      # PostgreSQL connection pool utilization
+      - record: matrixon:pg_connection_pool_utilization
+        expr: pg_stat_activity_count / 200
+        labels:
+          service: postgres
+          metric_type: connection_pool
+
+      # Redis connection pool utilization
+      - record: matrixon:redis_connection_pool_utilization
+        expr: redis_connected_clients / 1000
+        labels:
+          service: redis
+          metric_type: connection_pool
+
+  - name: resource_usage_rules
+    rules:
+      # CPU usage percentage
+      - record: matrixon:cpu_usage_percent
+        expr: 100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)
+        labels:
+          metric_type: cpu_usage
+
+      # Memory usage percentage
+      - record: matrixon:memory_usage_percent
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100
+        labels:
+          metric_type: memory_usage
+
+      # Disk usage percentage
+      - record: matrixon:disk_usage_percent
+        expr: (1 - (node_filesystem_avail_bytes{fstype!="tmpfs"} / node_filesystem_size_bytes{fstype!="tmpfs"})) * 100
+        labels:
+          metric_type: disk_usage
+
+      # Network throughput
+      - record: matrixon:network_throughput_bytes
+        expr: rate(node_network_receive_bytes_total[5m]) + rate(node_network_transmit_bytes_total[5m])
+        labels:
+          metric_type: network_usage
+
+  - name: application_performance_rules
+    rules:
+      # Request rate
+      - record: matrixon:request_rate
+        expr: rate(matrixon_http_requests_total[5m])
+        labels:
+          metric_type: http_metrics
+
+      # Error rate
+      - record: matrixon:error_rate
+        expr: rate(matrixon_http_requests_total{status=~"5.."}[5m]) / rate(matrixon_http_requests_total[5m])
+        labels:
+          metric_type: http_metrics
+
+      # Response time percentiles
+      - record: matrixon:response_time_p95
+        expr: histogram_quantile(0.95, rate(matrixon_http_request_duration_seconds_bucket[5m]))
+        labels:
+          metric_type: http_metrics
+          quantile: "95"
+
+      - record: matrixon:response_time_p99
+        expr: histogram_quantile(0.99, rate(matrixon_http_request_duration_seconds_bucket[5m]))
+        labels:
+          metric_type: http_metrics
+          quantile: "99"
+
+# Storage configuration
+storage:
+  tsdb:
+    path: /prometheus
+    retention.time: 30d
+    retention.size: 50GB
+    wal-compression: true
+
+# Remote write configuration (optional - for long-term storage)
+# remote_write:
+#   - url: "https://prometheus-remote-write-endpoint.com/api/v1/write"
+#     basic_auth:
+#       username: "your_username"
+#       password: "your_password" 
