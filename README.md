@@ -21,7 +21,7 @@
 
 ## 📋 Overview
 
-**Matrixon** is a next-generation Matrix NextServer designed for the future of decentralized communication. Built from the ground up in Rust, it combines the power of the Matrix protocol with cutting-edge AI capabilities and Web3 blockchain technology.
+**Matrixon** is a next-generation Matrix NextServer designed for the future of decentralized communication. Built from the ground up in Rust, it combines the power of the Matrix protocol with cutting-edge AI capabilities and Web3 blockchain technology. As a distributed communication platform, Matrixon enables effective real-time messaging between IoT devices and AI agents worldwide through its high-performance infrastructure and intelligent routing capabilities.
 
 ### 🎯 Key Goals
 
@@ -94,28 +94,28 @@ Matrixon follows a modern microservices architecture designed for scalability an
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    Client Applications                      │
-│  Element • Nextgram • Mobile Apps • Custom Clients        │
+│  Element • Nextgram • Mobile Apps • Custom Clients          │
 └─────────────────┬───────────────────────────────────────────┘
                   │ Matrix C-S API (HTTPS/WSS)
 ┌─────────────────▼───────────────────────────────────────────┐
-│                  Load Balancer                             │
-│             HAProxy / NGINX / Cloudflare                   │
+│                  Load Balancer                              │
+│             HAProxy / NGINX / Cloudflare                    │
 └─────────────────┬───────────────────────────────────────────┘
                   │ HTTP/2, TLS 1.3
 ┌─────────────────▼───────────────────────────────────────────┐
-│                 Matrixon Cluster                           │
-│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐          │
-│  │   Core API  │ │   AI Engine │ │ Web3 Bridge │          │
-│  │   Service   │ │   Service   │ │   Service   │          │
-│  └─────────────┘ └─────────────┘ └─────────────┘          │
+│                 Matrixon Cluster                            │
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐            │
+│  │   Core API  │ │   AI Engine │ │ Web3 Bridge │            │
+│  │   Service   │ │   Service   │ │   Service   │            │
+│  └─────────────┘ └─────────────┘ └─────────────┘            │
 └─────────────────┬───────────────────────────────────────────┘
                   │ Database & Storage
 ┌─────────────────▼───────────────────────────────────────────┐
-│                Storage & Cache Layer                       │
-│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐          │
-│  │ PostgreSQL  │ │    Redis    │ │    IPFS     │          │
-│  │  Cluster    │ │   Cluster   │ │  Storage    │          │
-│  └─────────────┘ └─────────────┘ └─────────────┘          │
+│                Storage & Cache Layer                        │
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐            │
+│  │ PostgreSQL  │ │    Redis    │ │    IPFS     │            │
+│  │  Cluster    │ │   Cluster   │ │  Storage    │            │
+│  └─────────────┘ └─────────────┘ └─────────────┘            │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -150,7 +150,7 @@ Matrixon follows a modern microservices architecture designed for scalability an
 
 ```bash
 # Clone the repository
-git clone https://github.com/arksong2018/Matrixon.git
+git clone https://github.com/arkCyber/Matrixon.git
 cd Matrixon
 
 # Start with Docker Compose
@@ -198,26 +198,25 @@ Set your NextServer URL to: `https://your-domain.com`
 
 ### 📚 User Guides
 
--   [🚀 Installation Guide](docs/INSTALLATION.md)
--   [⚙️ Configuration Reference](docs/CONFIGURATION.md)
--   [🔐 Security Best Practices](docs/SECURITY.md)
--   [📊 Monitoring & Observability](docs/MONITORING.md)
--   [🐳 Docker Deployment](docs/DOCKER.md)
-
+-   [🚀 Installation Guide](/docs/installation.md)
+-   [⚙️ Configuration Reference](/docs/configuration.md) 
+-   [🔐 Security Best Practices](/docs/security.md)
+-   [📊 Monitoring & Observability](/docs/monitoring.md)
+-   [🐳 Docker Deployment](/docs/docker.md)
 ### 🏗️ Developer Resources
 
--   [🏛️ Architecture Overview](ARCHITECTURE_PRINCIPLES.md)
--   [🔌 API Documentation](docs/API.md)
--   [🧪 Testing Guide](docs/TESTING.md)
+-   [🏛️ Architecture Overview](docs/architecture.md)
+-   [🔌 API Documentation](docs/api.md)
+-   [🧪 Testing Guide](docs/testing.md)
 -   [🤝 Contributing Guidelines](CONTRIBUTING.md)
--   [📋 Code Style Guide](docs/CODE_STYLE.md)
+-   [📋 Code Style Guide](docs/code_style.md)
 
 ### 🔗 Integration Guides
 
--   [🤖 AI Features Setup](docs/AI_INTEGRATION.md)
--   [⛓️ Web3 Configuration](docs/WEB3_SETUP.md)
--   [📱 Bridge Configuration](docs/BRIDGES.md)
--   [🌐 Federation Setup](docs/FEDERATION.md)
+-   [🤖 AI Features Setup](docs/ai_integration.md)
+-   [⛓️ Web3 Configuration](docs/web3_setup.md)
+-   [📱 Bridge Configuration](docs/bridges.md)
+-   [🌐 Federation Setup](docs/federation.md)
 
 ---
 
@@ -252,14 +251,13 @@ Set your NextServer URL to: `https://your-domain.com`
 ## 🤝 Contributing
 
 We welcome contributions from the community! Here's how you can help:
-
 ### 🎯 Ways to Contribute
 
--   🐛 **Bug Reports** - [Report issues](https://github.com/arksong2018/Matrixon/issues)
--   💡 **Feature Requests** - [Suggest improvements](https://github.com/arksong2018/Matrixon/discussions)
--   📝 **Code Contributions** - [Submit pull requests](https://github.com/arksong2018/Matrixon/pulls)
--   📚 **Documentation** - Help improve our docs
--   🧪 **Testing** - Test new features and report feedback
+-   🐛 **Bug Reports** - [Report issues](https://github.com/arkCyber/Matrixon/issues)
+-   💡 **Feature Requests** - [Suggest improvements](https://github.com/arkCyber/Matrixon/discussions)
+-   📝 **Code Contributions** - [Submit pull requests](https://github.com/arkCyber/Matrixon/pulls)
+-   📚 **Documentation** - Help improve our [docs](docs/)
+-   🧪 **Testing** - Test new features and report feedback in our [test forum](https://github.com/arkCyber/Matrixon/discussions/categories/testing)
 
 ### 🔧 Development Setup
 
@@ -280,8 +278,16 @@ cargo watch -x run
 
 ### 📋 Code Standards
 
--   Follow our [Code Style Guide](docs/CODE_STYLE.md)
+-   Follow our [Code Style Guide](https://github.com/arkCyber/Matrixon/blob/main/docs/CODE_STYLE.md)
 -   Write comprehensive tests for new features
+-   Ensure 100% test coverage for public APIs
+-   Add detailed function documentation with examples
+-   Include performance benchmarks for critical paths
+-   Follow Matrix protocol specifications
+-   Implement proper error handling and logging
+-   Maintain async/await patterns for I/O operations
+-   Keep dependencies up-to-date and secure
+-   Run full test suite before submitting PRs
 -   Update documentation for any API changes
 -   Run `cargo clippy` and `cargo fmt` before submitting
 
@@ -297,6 +303,7 @@ Matrixon stands on the shoulders of giants. We extend our heartfelt gratitude to
 -   **[Element (Synapse)](https://github.com/element-hq/synapse)** - The reference Matrix NextServer implementation
 -   **[Ruma](https://github.com/ruma/ruma)** - Rust Matrix library ecosystem
 -   **[Construct](https://github.com/matrix-construct/construct)** - High-performance C++ Matrix server
+-   **[Conduit](https://gitlab.com/famedly/conduit)** - Lightweight Matrix homeserver in Rust
 
 ### 🛠️ Technology Stack
 
@@ -335,19 +342,18 @@ You may choose either license for your use case.
     -   🐙 GitHub: [@arksong2018](https://github.com/arksong2018)
 
 ### 💬 Community
-
 -   🗨️ **Matrix Room**: [#matrixon:your-server.com](https://matrix.to/#/#matrixon:your-server.com)
--   💭 **Discussions**: [GitHub Discussions](https://github.com/arksong2018/Matrixon/discussions)
--   🐛 **Issues**: [GitHub Issues](https://github.com/arksong2018/Matrixon/issues)
+-   💭 **Discussions**: [GitHub Discussions](https://github.com/arkCyber/Matrixon/discussions)
+-   🐛 **Issues**: [GitHub Issues](https://github.com/arkCyber/Matrixon/issues)
 -   📢 **Updates**: Follow our development blog
 
 ### 🆘 Getting Help
 
 1. 📖 Check our [documentation](docs/)
-2. 🔍 Search [existing issues](https://github.com/arksong2018/Matrixon/issues)
+2. 🔍 Search [existing issues](https://github.com/arkCyber/Matrixon/issues)
 3. 💬 Join our Matrix room for community support
-4. 📝 Create a [new issue](https://github.com/arksong2018/Matrixon/issues/new) for bugs
-5. 💡 Start a [discussion](https://github.com/arksong2018/Matrixon/discussions) for questions
+4. 📝 Create a [new issue](https://github.com/arkCyber/Matrixon/issues/new) for bugs
+5. 💡 Start a [discussion](https://github.com/arkCyber/Matrixon/discussions) for questions
 
 ---
 
@@ -356,6 +362,11 @@ You may choose either license for your use case.
 **Built with ❤️ by the Matrixon Team**
 
 ⭐ Star us on GitHub if you find this project useful!
+
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/arksong2018)
+[![Sponsor on GitHub](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=ff69b4)](https://github.com/sponsors/arksong2018)
+[![Follow on GitHub](https://img.shields.io/github/followers/arksong2018?label=Follow&style=social)](https://github.com/arksong2018)
+[![Twitter Follow](https://img.shields.io/twitter/follow/matrixon_dev?style=social)](https://twitter.com/matrixon_dev)
 
 [🔝 Back to Top](#-matrixon---next-generation-matrix-server)
 
