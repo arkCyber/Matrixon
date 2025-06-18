@@ -426,6 +426,18 @@ impl CliContext {
                 // TODO: Implement recent users listing
                 Ok(())
             }
+            SecurityCommands::Whitelist { action } => {
+                self.formatter.info("Processing whitelist command")?;
+                // TODO: Implement whitelist command processing
+                println!("Whitelist functionality not yet fully implemented");
+                Ok(())
+            }
+            SecurityCommands::Blacklist { action } => {
+                self.formatter.info("Processing blacklist command")?;
+                // TODO: Implement blacklist command processing
+                println!("Blacklist functionality not yet fully implemented");
+                Ok(())
+            }
         }
     }
     

@@ -1010,6 +1010,268 @@ pub enum SecurityCommands {
         #[arg(short, long, default_value_t = 24)]
         hours: u64,
     },
+    
+    /// White/Allow list management
+    Whitelist {
+        #[command(subcommand)]
+        action: WhitelistCommands,
+    },
+    
+    /// Black/Deny list management
+    Blacklist {
+        #[command(subcommand)]
+        action: BlacklistCommands,
+    },
+}
+
+/// Whitelist management commands
+#[derive(Subcommand, Debug, Clone)]
+pub enum WhitelistCommands {
+    /// List current whitelist entries
+    #[command(alias = "ls")]
+    List {
+        /// Whitelist type (ip, server, user, domain)
+        #[arg(short, long)]
+        list_type: String,
+        
+        /// Show detailed information
+        #[arg(short, long)]
+        detailed: bool,
+        
+        /// Output format (json, csv, yaml, table)
+        #[arg(short, long, default_value = "table")]
+        format: String,
+    },
+    
+    /// Add entries to whitelist
+    Add {
+        /// Whitelist type (ip, server, user, domain)
+        #[arg(short, long)]
+        list_type: String,
+        
+        /// Entries to add
+        entries: Vec<String>,
+        
+        /// Reason for adding
+        #[arg(short, long)]
+        reason: Option<String>,
+        
+        /// Import from file (one entry per line)
+        #[arg(short, long)]
+        file: Option<PathBuf>,
+        
+        /// Skip validation checks
+        #[arg(long)]
+        skip_validation: bool,
+    },
+    
+    /// Remove entries from whitelist
+    Remove {
+        /// Whitelist type (ip, server, user, domain)
+        #[arg(short, long)]
+        list_type: String,
+        
+        /// Entries to remove
+        entries: Vec<String>,
+        
+        /// Remove from file (one entry per line)
+        #[arg(short, long)]
+        file: Option<PathBuf>,
+        
+        /// Force removal without confirmation
+        #[arg(long)]
+        force: bool,
+    },
+    
+    /// Import whitelist from file
+    Import {
+        /// Whitelist type (ip, server, user, domain)
+        #[arg(short, long)]
+        list_type: String,
+        
+        /// Input file path
+        input: PathBuf,
+        
+        /// File format (json, csv, yaml, txt)
+        #[arg(short, long)]
+        format: Option<String>,
+        
+        /// Merge with existing entries
+        #[arg(short, long)]
+        merge: bool,
+        
+        /// Dry run (don't actually import)
+        #[arg(long)]
+        dry_run: bool,
+        
+        /// Skip invalid entries
+        #[arg(long)]
+        skip_invalid: bool,
+    },
+    
+    /// Export whitelist to file
+    Export {
+        /// Whitelist type (ip, server, user, domain)
+        #[arg(short, long)]
+        list_type: String,
+        
+        /// Output file path
+        #[arg(short, long)]
+        output: Option<PathBuf>,
+        
+        /// Export format (json, csv, yaml, txt)
+        #[arg(short, long, default_value = "json")]
+        format: String,
+        
+        /// Include metadata (timestamps, reasons)
+        #[arg(long)]
+        include_metadata: bool,
+    },
+    
+    /// Check if entry is whitelisted
+    Check {
+        /// Whitelist type (ip, server, user, domain)
+        #[arg(short, long)]
+        list_type: String,
+        
+        /// Entry to check
+        entry: String,
+        
+        /// Show detailed match information
+        #[arg(short, long)]
+        verbose: bool,
+    },
+    
+    /// Clear all entries from whitelist
+    Clear {
+        /// Whitelist type (ip, server, user, domain)
+        #[arg(short, long)]
+        list_type: String,
+        
+        /// Force clearing without confirmation
+        #[arg(long)]
+        force: bool,
+        
+        /// Backup before clearing
+        #[arg(long)]
+        backup: bool,
+    },
+    
+    /// Validate whitelist entries
+    Validate {
+        /// Whitelist type (ip, server, user, domain)
+        #[arg(short, long)]
+        list_type: String,
+        
+        /// Fix invalid entries automatically
+        #[arg(long)]
+        auto_fix: bool,
+        
+        /// Remove invalid entries
+        #[arg(long)]
+        remove_invalid: bool,
+    },
+}
+
+/// Blacklist management commands
+#[derive(Subcommand, Debug, Clone)]
+pub enum BlacklistCommands {
+    /// List current blacklist entries
+    #[command(alias = "ls")]
+    List {
+        /// Blacklist type (ip, server, user, domain)
+        #[arg(short, long)]
+        list_type: String,
+        
+        /// Show detailed information
+        #[arg(short, long)]
+        detailed: bool,
+        
+        /// Output format (json, csv, yaml, table)
+        #[arg(short, long, default_value = "table")]
+        format: String,
+    },
+    
+    /// Add entries to blacklist
+    Add {
+        /// Blacklist type (ip, server, user, domain)
+        #[arg(short, long)]
+        list_type: String,
+        
+        /// Entries to add
+        entries: Vec<String>,
+        
+        /// Reason for blacklisting
+        #[arg(short, long)]
+        reason: Option<String>,
+        
+        /// Import from file (one entry per line)
+        #[arg(short, long)]
+        file: Option<PathBuf>,
+        
+        /// Expiration time (e.g., "7d", "1h", "30m")
+        #[arg(short, long)]
+        expires: Option<String>,
+    },
+    
+    /// Remove entries from blacklist
+    Remove {
+        /// Blacklist type (ip, server, user, domain)
+        #[arg(short, long)]
+        list_type: String,
+        
+        /// Entries to remove
+        entries: Vec<String>,
+        
+        /// Remove from file (one entry per line)
+        #[arg(short, long)]
+        file: Option<PathBuf>,
+        
+        /// Force removal without confirmation
+        #[arg(long)]
+        force: bool,
+    },
+    
+    /// Import blacklist from file
+    Import {
+        /// Blacklist type (ip, server, user, domain)
+        #[arg(short, long)]
+        list_type: String,
+        
+        /// Input file path
+        input: PathBuf,
+        
+        /// File format (json, csv, yaml, txt)
+        #[arg(short, long)]
+        format: Option<String>,
+        
+        /// Merge with existing entries
+        #[arg(short, long)]
+        merge: bool,
+        
+        /// Dry run (don't actually import)
+        #[arg(long)]
+        dry_run: bool,
+    },
+    
+    /// Export blacklist to file
+    Export {
+        /// Blacklist type (ip, server, user, domain)
+        #[arg(short, long)]
+        list_type: String,
+        
+        /// Output file path
+        #[arg(short, long)]
+        output: Option<PathBuf>,
+        
+        /// Export format (json, csv, yaml, txt)
+        #[arg(short, long, default_value = "json")]
+        format: String,
+        
+        /// Include metadata (timestamps, reasons)
+        #[arg(long)]
+        include_metadata: bool,
+    },
 }
 
 #[derive(Subcommand, Debug, Clone)]

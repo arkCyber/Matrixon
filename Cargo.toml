@@ -19,6 +19,7 @@ members = [
     "crates/matrixon-ipfs",
     "crates/matrixon-monitor",
     "crates/matrixon-backup",
+    "crates/matrixon-whitelist",
 ]
 exclude = ["crates/matrixon-federation"]
 
